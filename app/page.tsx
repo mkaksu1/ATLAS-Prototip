@@ -95,7 +95,7 @@ export default function HomePage() {
                   {appLinks.map(({ name, Icon, href, color }) => (
                     <Link
                       key={name}
-                      href={href}
+                      href={href as any}
                       onClick={() => setOpen(false)}
                       className="group flex flex-col items-center gap-2 rounded-2xl p-3 transition hover:bg-slate-50/80"
                     >
@@ -111,7 +111,7 @@ export default function HomePage() {
                 
                 <div className="mt-5 border-t border-slate-100 pt-4">
                   <Link
-                    href="/tum-uygulamalar"
+                    href={"/" as any}
                     className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                   >
                     Tüm uygulamaları gör

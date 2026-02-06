@@ -30,7 +30,7 @@ export default function Sidebar() {
           return (
             <Link
               key={href}
-              href={href}
+              href={href as any}
               className={`group flex items-center gap-3 rounded-lg px-3 py-3 transition hover:bg-white/5 ${
                 isActive ? "text-[#FFC72C]" : "text-white"
               }`}

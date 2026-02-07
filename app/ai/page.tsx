@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   SparklesIcon,
   PaperAirplaneIcon,
@@ -81,6 +84,9 @@ const sampleConversations: Conversation[] = [
 ];
 
 export default function AIPage() {
+  const searchParams = useSearchParams();
+  const queryText = searchParams.get("q") || "";
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -92,8 +98,14 @@ export default function AIPage() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  useEffect(() => {
+    if (queryText) {
+      setInputValue(queryText);
+    }
+  }, [queryText]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const userMessage: Message = {
@@ -103,21 +115,56 @@ export default function AIPage() {
       timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
     };
 
-    setMessages([...messages, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // GitHub Models API çağrısı
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API çağrısı başarısız');
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       const aiMessage: Message = {
         id: messages.length + 2,
         role: "assistant",
-        content: "Bu harika bir soru! Size yardımcı olmak için elimden geleni yapacağım. ATLAS.AI olarak, çeşitli konularda destek sağlayabilir, kod yazabilir, metin oluşturabilir ve analizler yapabilirim. Daha spesifik bir konuda yardıma ihtiyacınız var mı?",
+        content: data.choices[0].message.content,
         timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
       };
+      
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: messages.length + 2,
+        role: "assistant",
+        content: "Üzgünüm, şu anda bir hata oluştu. Lütfen .env.local dosyasında GITHUB_TOKEN'ınızı yapılandırdığınızdan emin olun. Token almak için: https://github.com/settings/tokens (models:read izni gerekli)",
+        timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleQuickPrompt = (prompt: string) => {
@@ -289,9 +336,17 @@ export default function AIPage() {
                       : "border border-slate-200 bg-white text-slate-900"
                   }`}
                 >
-                  <p className="mb-1 text-sm leading-relaxed">{message.content}</p>
+                  {message.role === "assistant" ? (
+                    <div className="prose prose-sm max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-fuchsia-600 prose-code:bg-fuchsia-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-[''] prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-slate-900 prose-ul:list-disc prose-ol:list-decimal">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  )}
                   <p
-                    className={`text-xs ${
+                    className={`text-xs mt-2 ${
                       message.role === "user" ? "text-blue-200" : "text-slate-500"
                     }`}
                   >

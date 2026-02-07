@@ -241,39 +241,54 @@ export default function HomePage() {
 
           {/* Search Box */}
           <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto w-full duration-700 delay-200">
-            <div className="group relative overflow-hidden rounded-full border-2 border-slate-200/60 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-100 transition hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-900/20">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 via-purple-50/80 to-pink-50/80 opacity-0 transition duration-500 group-hover:opacity-100" />
-              <div className="relative flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-7 sm:py-5">
-                <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:text-slate-600 group-hover:rotate-12" />
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="ATLAS'ta ara veya bir URL gir"
-                  className="w-full border-none bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-base"
-                />
-                {searchValue && (
-                  <button
-                    onClick={() => setSearchValue("")}
-                    className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                  </button>
-                )}
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchValue.trim()) {
+                window.location.href = `/arama?q=${encodeURIComponent(searchValue)}`;
+              }
+            }}>
+              <div className="group relative overflow-hidden rounded-full border-2 border-slate-200/60 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-100 transition hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-900/20">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 via-purple-50/80 to-pink-50/80 opacity-0 transition duration-500 group-hover:opacity-100" />
+                <div className="relative flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-7 sm:py-5">
+                  <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:text-slate-600 group-hover:rotate-12" />
+                  <input
+                    type="text"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder="ATLAS'ta ara veya bir URL gir"
+                    className="w-full border-none bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-base"
+                  />
+                  {searchValue && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchValue("")}
+                      className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="mt-6 flex justify-center gap-3 sm:mt-8 sm:gap-4">
-              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
-                <span className="relative z-10">ATLAS'ta Ara</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 transition group-hover:opacity-100" />
-              </button>
-              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
-                <span className="relative z-10">ATLAS.AI'a Sor</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 opacity-0 transition group-hover:opacity-100" />
-              </button>
-            </div>
+              
+              {/* Action Buttons */}
+              <div className="mt-6 flex justify-center gap-3 sm:mt-8 sm:gap-4">
+                <button type="submit" className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
+                  <span className="relative z-10">ATLAS'ta Ara</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 transition group-hover:opacity-100" />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const query = searchValue.trim() ? `?q=${encodeURIComponent(searchValue)}` : '';
+                    window.location.href = `/ai${query}`;
+                  }}
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm"
+                >
+                  <span className="relative z-10">ATLAS.AI'ya Sor</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 opacity-0 transition group-hover:opacity-100" />
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Info Text */}

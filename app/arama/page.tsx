@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MagnifyingGlassIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
@@ -14,7 +14,7 @@ interface SearchResult {
 // Dynamic export to fix useSearchParams suspense issue
 export const dynamic = 'force-dynamic';
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchValue, setSearchValue] = useState(query);
@@ -197,5 +197,20 @@ export default function SearchPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+          <p className="text-slate-600">Arama sonuçları yükleniyor...</p>
+        </div>
+      </div>
+    }>
+      <SearchPageContent />
+    </Suspense>
   );
 }

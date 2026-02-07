@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "ATLAS | Dijital Ekosistem",
   description: "ATLAS ulusal dijital ekosistem prototipi",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

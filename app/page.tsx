@@ -84,7 +84,7 @@ export default function HomePage() {
                 className="fixed inset-0 z-[100]" 
                 onClick={() => setOpen(false)}
               />
-              <div className="absolute right-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 p-4 shadow-2xl backdrop-blur-xl duration-200 sm:p-6">
+              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 p-4 shadow-2xl backdrop-blur-xl duration-200 sm:p-6">
                 <div className="mb-4 flex items-center justify-between sm:mb-5">
                   <p className="text-sm font-semibold text-slate-900">
                     ATLAS Uygulamaları
@@ -269,8 +269,8 @@ export default function HomePage() {
                 <span className="relative z-10">ATLAS'ta Ara</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 transition group-hover:opacity-100" />
               </button>
-              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
-                <span className="relative z-10">Şansımı Dene</span>
+              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
+                <span className="relative z-10">ATLAS.AI'a Sor</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 opacity-0 transition group-hover:opacity-100" />
               </button>
             </div>

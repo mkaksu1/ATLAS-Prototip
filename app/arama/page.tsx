@@ -11,6 +11,9 @@ interface SearchResult {
   description: string;
 }
 
+// Dynamic export to fix useSearchParams suspense issue
+export const dynamic = 'force-dynamic';
+
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";

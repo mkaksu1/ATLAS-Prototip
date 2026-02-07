@@ -83,6 +83,9 @@ const sampleConversations: Conversation[] = [
   },
 ];
 
+// Dynamic export to fix useSearchParams suspense issue
+export const dynamic = 'force-dynamic';
+
 export default function AIPage() {
   const searchParams = useSearchParams();
   const queryText = searchParams.get("q") || "";

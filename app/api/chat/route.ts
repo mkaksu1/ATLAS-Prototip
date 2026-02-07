@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
         model: 'gpt-4o',
         messages: messages,
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 4000,
+        stream: true,
       }),
     });
 
@@ -36,8 +37,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Stream response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) {
+          controller.close();
+          return;
+        }
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            controller.enqueue(value);
+          }
+        } catch (error) {
+          console.error('Stream error:', error);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
     
   } catch (error) {
     console.error('Chat API error:', error);

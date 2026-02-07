@@ -123,8 +123,18 @@ function AIPageContent() {
     setInputValue("");
     setIsTyping(true);
 
+    // AI mesaj placeholder'ı ekle
+    const aiMessageId = messages.length + 2;
+    const aiMessage: Message = {
+      id: aiMessageId,
+      role: "assistant",
+      content: "",
+      timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+    };
+    setMessages((prev) => [...prev, aiMessage]);
+
     try {
-      // GitHub Models API çağrısı
+      // GitHub Models API çağrısı (streaming)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -142,30 +152,65 @@ function AIPageContent() {
         throw new Error('API çağrısı başarısız');
       }
 
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('Stream reader alınamadı');
       }
 
-      const aiMessage: Message = {
-        id: messages.length + 2,
-        role: "assistant",
-        content: data.choices[0].message.content,
-        timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
-      };
-      
-      setMessages((prev) => [...prev, aiMessage]);
+      let accumulatedContent = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        // Son satırı buffer'da tut (eksik olabilir)
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim() === '' || !line.startsWith('data: ')) continue;
+          
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content;
+            
+            if (content) {
+              accumulatedContent += content;
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === aiMessageId
+                    ? { ...msg, content: accumulatedContent }
+                    : msg
+                )
+              );
+            }
+          } catch (e) {
+            // JSON parse hatası, devam et
+          }
+        }
+      }
+
+      setIsTyping(false);
     } catch (error) {
       console.error('Chat error:', error);
-      const errorMessage: Message = {
-        id: messages.length + 2,
-        role: "assistant",
-        content: "Üzgünüm, şu anda bir hata oluştu. Lütfen .env.local dosyasında GITHUB_TOKEN'ınızı yapılandırdığınızdan emin olun. Token almak için: https://github.com/settings/tokens (models:read izni gerekli)",
-        timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === aiMessageId
+            ? { 
+                ...msg, 
+                content: "Üzgünüm, şu anda bir hata oluştu. Lütfen .env.local dosyasında GITHUB_TOKEN'ınızı yapılandırdığınızdan emin olun. Token almak için: https://github.com/settings/tokens (models:read izni gerekli)" 
+              }
+            : msg
+        )
+      );
       setIsTyping(false);
     }
   };
@@ -279,8 +324,7 @@ function AIPageContent() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">ATLAS.AI Asistan</h1>
-                <p className="hidden sm:block text-sm text-slate-600">Yapay zeka destekli yardımcınız</p>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900">ATLAS.AI</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">

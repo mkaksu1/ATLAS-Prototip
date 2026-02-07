@@ -20,6 +20,9 @@ import {
   BanknotesIcon,
   CreditCardIcon,
   SparklesIcon,
+  PlayCircleIcon,
+  BoltIcon,
+  CameraIcon,
 } from "@heroicons/react/24/outline";
 
 const appLinks = [
@@ -37,6 +40,9 @@ const appLinks = [
   { name: "FinansATLAS", Icon: BanknotesIcon, href: "/finans", color: "from-amber-500 to-amber-600" },
   { name: "ATLAS Pay", Icon: CreditCardIcon, href: "/pay", color: "from-violet-500 to-violet-600" },
   { name: "ATLAS.AI", Icon: SparklesIcon, href: "/ai", color: "from-fuchsia-500 to-fuchsia-600" },
+  { name: "ATLAS Video", Icon: PlayCircleIcon, href: "/video", color: "from-rose-500 to-rose-600" },
+  { name: "ATLAS Pulse", Icon: BoltIcon, href: "/pulse", color: "from-cyan-500 to-blue-600" },
+  { name: "ATLASS", Icon: CameraIcon, href: "/atlass", color: "from-pink-500 to-rose-600" },
 ];
 
 export default function HomePage() {

@@ -18,6 +18,9 @@ import {
   SparklesIcon,
   ArrowLeftIcon,
   MagnifyingGlassIcon,
+  PlayCircleIcon,
+  BoltIcon,
+  CameraIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
@@ -36,6 +39,9 @@ const allApps = [
   { name: "FinansATLAS", Icon: BanknotesIcon, href: "/finans", color: "from-amber-500 to-amber-600", description: "Finansal piyasalar" },
   { name: "ATLAS Pay", Icon: CreditCardIcon, href: "/pay", color: "from-violet-500 to-violet-600", description: "Dijital cüzdan" },
   { name: "ATLAS.AI", Icon: SparklesIcon, href: "/ai", color: "from-fuchsia-500 to-fuchsia-600", description: "Yapay zeka asistanı" },
+  { name: "ATLAS Video", Icon: PlayCircleIcon, href: "/video", color: "from-rose-500 to-rose-600", description: "Video platformu" },
+  { name: "ATLAS Pulse", Icon: BoltIcon, href: "/pulse", color: "from-cyan-500 to-blue-600", description: "Sosyal medya platformu" },
+  { name: "ATLASS", Icon: CameraIcon, href: "/atlass", color: "from-pink-500 to-rose-600", description: "Fotoğraf paylaşım platformu" },
 ];
 
 export default function AllAppsPage() {

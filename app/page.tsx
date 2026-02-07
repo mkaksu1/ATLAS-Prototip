@@ -9,15 +9,15 @@ import {
   MapPinIcon,
   DocumentTextIcon,
   CalendarIcon,
-  Cog6ToothIcon,
-  ShieldCheckIcon,
-  BellIcon,
   UserGroupIcon,
-  ChartBarIcon,
-  CloudIcon,
   VideoCameraIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
+  LanguageIcon,
+  UserIcon,
+  ChatBubbleLeftRightIcon,
+  ShoppingBagIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 
 const appLinks = [
@@ -28,15 +28,16 @@ const appLinks = [
   { name: "Takvim", Icon: CalendarIcon, href: "/takvim", color: "from-red-500 to-red-600" },
   { name: "Toplantı", Icon: VideoCameraIcon, href: "/toplanti", color: "from-indigo-500 to-indigo-600" },
   { name: "Ekip", Icon: UserGroupIcon, href: "/ekip", color: "from-pink-500 to-pink-600" },
-  { name: "Raporlar", Icon: ChartBarIcon, href: "/raporlar", color: "from-orange-500 to-orange-600" },
-  { name: "Bulut", Icon: CloudIcon, href: "/bulut", color: "from-cyan-500 to-cyan-600" },
-  { name: "Güvenlik", Icon: ShieldCheckIcon, href: "/guvenlik", color: "from-emerald-500 to-emerald-600" },
-  { name: "Bildirimler", Icon: BellIcon, href: "/bildirimler", color: "from-amber-500 to-amber-600" },
-  { name: "Ayarlar", Icon: Cog6ToothIcon, href: "/ayarlar", color: "from-slate-500 to-slate-600" },
+  { name: "Çeviri", Icon: LanguageIcon, href: "/ceviri", color: "from-cyan-500 to-cyan-600" },
+  { name: "Kişiler", Icon: UserIcon, href: "/kisiler", color: "from-teal-500 to-teal-600" },
+  { name: "ATLAS Chat", Icon: ChatBubbleLeftRightIcon, href: "/chat", color: "from-emerald-500 to-emerald-600" },
+  { name: "Alışveriş", Icon: ShoppingBagIcon, href: "/alisveris", color: "from-orange-500 to-orange-600" },
+  { name: "FinansATLAS", Icon: BanknotesIcon, href: "/finans", color: "from-amber-500 to-amber-600" },
 ];
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
   return (
@@ -122,9 +123,101 @@ export default function HomePage() {
           )}
         </div>
 
-        <button className="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#0B1B3D] to-[#2d4a7c] text-sm font-bold text-white shadow-lg shadow-slate-900/20 ring-2 ring-white transition-all duration-300 hover:scale-110 hover:shadow-xl hover:ring-4 hover:ring-slate-200 active:scale-95">
-          AT
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setOpenProfile((v) => !v)}
+            className="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#0B1B3D] to-[#2d4a7c] text-sm font-bold text-white shadow-lg shadow-slate-900/20 ring-2 ring-white transition-all duration-300 hover:scale-110 hover:shadow-xl hover:ring-4 hover:ring-slate-200 active:scale-95"
+            aria-label="Profil"
+          >
+            AT
+          </button>
+
+          {openProfile && (
+            <>
+              <div 
+                className="fixed inset-0 z-[100]" 
+                onClick={() => setOpenProfile(false)}
+              />
+              <div className="absolute right-0 z-[110] mt-2 w-80 animate-in fade-in slide-in-from-top-2 rounded-2xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200">
+                {/* Profile Header */}
+                <div className="border-b border-slate-200 p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-lg font-bold text-white shadow-lg">
+                      AT
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900">Ahmet Yılmaz</p>
+                      <p className="text-sm text-slate-600">ahmet.yilmaz@atlas.gov.tr</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/profil"
+                    onClick={() => setOpenProfile(false)}
+                    className="mt-3 flex w-full items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Profili Yönet
+                  </Link>
+                </div>
+
+                {/* Quick Links */}
+                <div className="p-3">
+                  <Link
+                    href="/profil"
+                    onClick={() => setOpenProfile(false)}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <span>Hesap Ayarları</span>
+                  </Link>
+                  <Link
+                    href="/profil"
+                    onClick={() => setOpenProfile(false)}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <span>Gizlilik ve Güvenlik</span>
+                  </Link>
+                  <Link
+                    href="/drive"
+                    onClick={() => setOpenProfile(false)}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p>Depolama</p>
+                      <p className="text-xs text-slate-500">24.5 GB / 100 GB</p>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-slate-200 p-3">
+                  <button
+                    onClick={() => setOpenProfile(false)}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Çıkış Yap
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </header>
 
       {/* Main Content */}

@@ -18,6 +18,8 @@ import {
   ChatBubbleLeftRightIcon,
   ShoppingBagIcon,
   BanknotesIcon,
+  CreditCardIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 
 const appLinks = [
@@ -33,6 +35,8 @@ const appLinks = [
   { name: "ATLAS Chat", Icon: ChatBubbleLeftRightIcon, href: "/chat", color: "from-emerald-500 to-emerald-600" },
   { name: "Alışveriş", Icon: ShoppingBagIcon, href: "/alisveris", color: "from-orange-500 to-orange-600" },
   { name: "FinansATLAS", Icon: BanknotesIcon, href: "/finans", color: "from-amber-500 to-amber-600" },
+  { name: "ATLAS Pay", Icon: CreditCardIcon, href: "/pay", color: "from-violet-500 to-violet-600" },
+  { name: "ATLAS.AI", Icon: SparklesIcon, href: "/ai", color: "from-fuchsia-500 to-fuchsia-600" },
 ];
 
 export default function HomePage() {
@@ -58,19 +62,20 @@ export default function HomePage() {
           ATLASmail
         </Link>
         <Link
-          href="#"
+          href="/ai"
           className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm"
         >
-          Görüntüler
+          ATLAS.AI
         </Link>
         
         <div className="relative">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-all duration-200 hover:scale-110 hover:bg-gradient-to-br hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm"
             aria-label="Uygulamalar"
           >
-            <Squares2X2Icon className="h-6 w-6 transition-transform duration-200 group-hover:rotate-180" />
+            <Squares2X2Icon className="h-5 w-5" />
+            <span>Uygulamalar</span>
           </button>
           
           {open && (
@@ -112,7 +117,8 @@ export default function HomePage() {
                 
                 <div className="mt-5 border-t border-slate-100 pt-4">
                   <Link
-                    href={"/" as any}
+                    href="/uygulamalar"
+                    onClick={() => setOpen(false)}
                     className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                   >
                     Tüm uygulamaları gör

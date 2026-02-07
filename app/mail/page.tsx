@@ -91,6 +91,7 @@ export default function MailPage() {
   const [starredEmails, setStarredEmails] = useState<number[]>(
     emails.filter((e) => e.starred).map((e) => e.id)
   );
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSelect = (id: number) => {
     setSelectedEmails((prev) =>
@@ -106,8 +107,18 @@ export default function MailPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r border-slate-200 bg-slate-50/50">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -164,17 +175,20 @@ export default function MailPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-          <div className="flex items-center gap-4">
-            <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
+            >
               <Bars3Icon className="h-5 w-5" />
             </button>
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="E-postalarda ara"
-                className="w-96 rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-48 rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 lg:w-96"
               />
             </div>
           </div>
@@ -182,14 +196,14 @@ export default function MailPage() {
             <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
               <ArrowPathIcon className="h-5 w-5" />
             </button>
-            <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
+            <button className="hidden rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 sm:block">
               <EllipsisVerticalIcon className="h-5 w-5" />
             </button>
           </div>
         </header>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/50 px-6 py-2">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/50 px-3 py-2 sm:px-6">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -198,11 +212,11 @@ export default function MailPage() {
             <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
               <TrashIcon className="h-4 w-4" />
             </button>
-            <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
+            <button className="hidden rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 sm:block">
               <ArrowPathIcon className="h-4 w-4" />
             </button>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-600">
+          <div className="hidden items-center gap-2 text-xs text-slate-600 sm:flex">
             <span>1-6 / 12</span>
             <button className="rounded p-1 transition hover:bg-slate-100">
               <ChevronLeftIcon className="h-4 w-4" />
@@ -221,7 +235,7 @@ export default function MailPage() {
             return (
               <div
                 key={email.id}
-                className={`group flex cursor-pointer items-center gap-4 border-b border-slate-100 px-6 py-3 transition-all duration-150 hover:bg-slate-50 hover:shadow-sm ${
+                className={`group flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-3 transition-all duration-150 hover:bg-slate-50 hover:shadow-sm sm:gap-4 sm:px-6 ${
                   isSelected ? "bg-blue-50" : email.read ? "bg-white" : "bg-blue-50/30"
                 }`}
               >
@@ -229,24 +243,24 @@ export default function MailPage() {
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleSelect(email.id)}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                  className="h-4 w-4 flex-shrink-0 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20"
                 />
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleStar(email.id);
                   }}
-                  className="text-slate-400 transition hover:text-yellow-500"
+                  className="flex-shrink-0 text-slate-400 transition hover:text-yellow-500"
                 >
                   {isStarred ? (
-                    <StarIconSolid className="h-5 w-5 text-yellow-500" />
+                    <StarIconSolid className="h-4 w-4 text-yellow-500 sm:h-5 sm:w-5" />
                   ) : (
-                    <StarIcon className="h-5 w-5" />
+                    <StarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   )}
                 </button>
-                <div className="flex min-w-0 flex-1 items-center gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
                   <span
-                    className={`w-44 flex-shrink-0 truncate text-sm ${
+                    className={`flex-shrink-0 truncate text-xs sm:w-44 sm:text-sm ${
                       email.read ? "font-normal text-slate-600" : "font-semibold text-slate-900"
                     }`}
                   >
@@ -254,13 +268,13 @@ export default function MailPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <span
-                      className={`text-sm ${
+                      className={`block truncate text-sm sm:inline ${
                         email.read ? "font-normal text-slate-900" : "font-semibold text-slate-900"
                       }`}
                     >
                       {email.subject}
                     </span>
-                    <span className="ml-2 text-sm text-slate-500">— {email.preview}</span>
+                    <span className="hidden text-sm text-slate-500 sm:ml-2 sm:inline">— {email.preview}</span>
                   </div>
                   <span className="flex-shrink-0 text-xs text-slate-500">{email.time}</span>
                 </div>

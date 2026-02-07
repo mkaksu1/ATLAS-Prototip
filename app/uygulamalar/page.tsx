@@ -56,27 +56,27 @@ export default function AllAppsPage() {
 
       {/* Header */}
       <header className="relative z-10 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="/"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 sm:px-3 sm:py-2"
               >
-                <ArrowLeftIcon className="h-5 w-5" />
-                <span>Ana Sayfa</span>
+                <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="hidden sm:inline">Ana Sayfa</span>
               </Link>
-              <div className="h-6 w-px bg-slate-200" />
-              <h1 className="text-2xl font-bold text-slate-900">Tüm Uygulamalar</h1>
+              <div className="hidden h-6 w-px bg-slate-200 sm:block" />
+              <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Tüm Uygulamalar</h1>
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-80">
               <input
                 type="text"
                 placeholder="Uygulama ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
             </div>
@@ -85,9 +85,9 @@ export default function AllAppsPage() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 mx-auto max-w-7xl px-6 py-12">
+      <main className="relative z-10 mx-auto max-w-7xl px-3 py-8 sm:px-6 sm:py-12">
         {/* Stats */}
-        <div className="mb-8 flex items-center gap-6">
+        <div className="mb-6 flex flex-wrap items-center gap-4 sm:mb-8 sm:gap-6">
           <div className="rounded-xl border border-slate-200 bg-white/80 px-5 py-3 shadow-sm backdrop-blur-sm">
             <p className="text-sm text-slate-600">Toplam Uygulama</p>
             <p className="text-2xl font-bold text-slate-900">{allApps.length}</p>

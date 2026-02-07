@@ -169,6 +169,7 @@ const teamMembers: TeamMember[] = [
 ];
 
 export default function EkipPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -221,8 +222,18 @@ export default function EkipPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-80 flex-col border-r border-slate-200 bg-slate-50/50 overflow-hidden">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-80 flex-col border-r border-slate-200 bg-white overflow-hidden transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -343,69 +354,76 @@ export default function EkipPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-slate-900">Ekip Üyeleri</h1>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-              {filteredMembers.length} üye
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="İsim, rol veya yetenek ara..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none"
-              />
+        <header className="border-b border-slate-200 bg-white px-3 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Ekip Üyeleri</h1>
             </div>
-            <div className="flex rounded-lg border border-slate-200">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`rounded-l-lg px-3 py-2 transition ${
-                  viewMode === "grid"
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 sm:flex-initial">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ekip üyesi ara..."
+                  className="w-full sm:w-80 rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+              <div className="hidden sm:flex gap-1 rounded-lg bg-slate-100 p-1">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-l-lg px-3 py-2 transition ${
+                    viewMode === "grid"
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`rounded-r-lg px-3 py-2 transition ${
-                  viewMode === "list"
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`rounded-r-lg px-3 py-2 transition ${
+                    viewMode === "list"
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </header>

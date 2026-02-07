@@ -211,6 +211,7 @@ export default function DrivePage() {
     files.filter((f) => f.starred).map((f) => f.id)
   );
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSelect = (id: number) => {
     setSelectedFiles((prev) =>
@@ -235,8 +236,18 @@ export default function DrivePage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r border-slate-200 bg-slate-50/50">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -295,8 +306,16 @@ export default function DrivePage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-          <div className="flex items-center gap-4">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <h1 className="text-xl font-semibold text-slate-900">Dosyalarım</h1>
           </div>
 

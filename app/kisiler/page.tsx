@@ -151,6 +151,7 @@ export default function KisilerPage() {
     contacts.filter((c) => c.isFavorite).map((c) => c.id)
   );
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch =
@@ -172,8 +173,18 @@ export default function KisilerPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-80 flex-col border-r border-slate-200 bg-slate-50/50 overflow-hidden">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-80 flex-col border-r border-slate-200 bg-white overflow-hidden transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -282,22 +293,30 @@ export default function KisilerPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-slate-900">Kişiler</h1>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-4 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Kişiler</h1>
+            <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
               {filteredContacts.length} kişi
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative hidden sm:block">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Kişi ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-48 lg:w-80 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div className="flex rounded-lg border border-slate-200">

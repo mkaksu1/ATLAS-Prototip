@@ -54,16 +54,16 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-50 flex items-center justify-end gap-3 px-6 py-5">
+      <header className="relative z-50 flex items-center justify-end gap-2 px-3 py-4 sm:gap-3 sm:px-6 sm:py-5">
         <Link
           href="/mail"
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm"
+          className="hidden rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm sm:block"
         >
           ATLASmail
         </Link>
         <Link
-          href="/ai"
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm"
+          href={("/ai" as any)}
+          className="hidden rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm md:block"
         >
           ATLAS.AI
         </Link>
@@ -75,7 +75,7 @@ export default function HomePage() {
             aria-label="Uygulamalar"
           >
             <Squares2X2Icon className="h-5 w-5" />
-            <span>Uygulamalar</span>
+            <span className="hidden sm:inline">Uygulamalar</span>
           </button>
           
           {open && (
@@ -84,8 +84,8 @@ export default function HomePage() {
                 className="fixed inset-0 z-[100]" 
                 onClick={() => setOpen(false)}
               />
-              <div className="absolute right-0 z-[110] mt-2 w-[420px] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 p-6 shadow-2xl backdrop-blur-xl duration-200">
-                <div className="mb-5 flex items-center justify-between">
+              <div className="absolute right-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 p-4 shadow-2xl backdrop-blur-xl duration-200 sm:p-6">
+                <div className="mb-4 flex items-center justify-between sm:mb-5">
                   <p className="text-sm font-semibold text-slate-900">
                     ATLAS Uygulamaları
                   </p>
@@ -97,7 +97,7 @@ export default function HomePage() {
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {appLinks.map(({ name, Icon, href, color }) => (
                     <Link
                       key={name}
@@ -117,7 +117,7 @@ export default function HomePage() {
                 
                 <div className="mt-5 border-t border-slate-100 pt-4">
                   <Link
-                    href="/uygulamalar"
+                    href={("/uygulamalar" as any)}
                     onClick={() => setOpen(false)}
                     className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                   >
@@ -144,7 +144,7 @@ export default function HomePage() {
                 className="fixed inset-0 z-[100]" 
                 onClick={() => setOpenProfile(false)}
               />
-              <div className="absolute right-0 z-[110] mt-2 w-80 animate-in fade-in slide-in-from-top-2 rounded-2xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200">
+              <div className="absolute right-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-80 animate-in fade-in slide-in-from-top-2 rounded-2xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200">
                 {/* Profile Header */}
                 <div className="border-b border-slate-200 p-5">
                   <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <Link
-                    href="/profil"
+                    href={("/profil" as any)}
                     onClick={() => setOpenProfile(false)}
                     className="mt-3 flex w-full items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                   >
@@ -168,7 +168,7 @@ export default function HomePage() {
                 {/* Quick Links */}
                 <div className="p-3">
                   <Link
-                    href="/profil"
+                    href={("/profil" as any)}
                     onClick={() => setOpenProfile(false)}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
                   >
@@ -180,7 +180,7 @@ export default function HomePage() {
                     <span>Hesap Ayarları</span>
                   </Link>
                   <Link
-                    href="/profil"
+                    href={("/profil" as any)}
                     onClick={() => setOpenProfile(false)}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
                   >
@@ -230,11 +230,11 @@ export default function HomePage() {
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-40">
         <div className="w-full max-w-2xl space-y-8 text-center">
           {/* Logo */}
-          <div className="space-y-3">
-            <h1 className="animate-in fade-in slide-in-from-bottom-4 bg-gradient-to-r from-[#0B1B3D] via-[#2d5a9f] to-[#0B1B3D] bg-clip-text text-[5.5rem] font-black italic tracking-tight text-transparent drop-shadow-2xl duration-700 md:text-[7rem]">
+          <div className="space-y-2 sm:space-y-3">
+            <h1 className="animate-in fade-in slide-in-from-bottom-4 bg-gradient-to-r from-[#0B1B3D] via-[#2d5a9f] to-[#0B1B3D] bg-clip-text text-6xl font-black italic tracking-tight text-transparent drop-shadow-2xl duration-700 sm:text-[5.5rem] md:text-[7rem]">
               ATLAS
             </h1>
-            <p className="animate-in fade-in slide-in-from-bottom-4 text-base font-semibold italic tracking-wide text-slate-600 duration-700 delay-100 md:text-lg">
+            <p className="animate-in fade-in slide-in-from-bottom-4 text-sm font-semibold italic tracking-wide text-slate-600 duration-700 delay-100 sm:text-base md:text-lg">
               Araştır • Bul • Öğren
             </p>
           </div>
@@ -243,14 +243,14 @@ export default function HomePage() {
           <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto w-full duration-700 delay-200">
             <div className="group relative overflow-hidden rounded-full border-2 border-slate-200/60 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-100 transition hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-900/20">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-50/80 via-purple-50/80 to-pink-50/80 opacity-0 transition duration-500 group-hover:opacity-100" />
-              <div className="relative flex items-center gap-4 px-7 py-5">
-                <MagnifyingGlassIcon className="h-5 w-5 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:text-slate-600 group-hover:rotate-12" />
+              <div className="relative flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-7 sm:py-5">
+                <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:text-slate-600 group-hover:rotate-12" />
                 <input
                   type="text"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="ATLAS'ta ara veya bir URL gir"
-                  className="w-full border-none bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                  className="w-full border-none bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-base"
                 />
                 {searchValue && (
                   <button
@@ -264,12 +264,12 @@ export default function HomePage() {
             </div>
             
             {/* Action Buttons */}
-            <div className="mt-8 flex justify-center gap-4">
-              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-7 py-3.5 text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95">
+            <div className="mt-6 flex justify-center gap-3 sm:mt-8 sm:gap-4">
+              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
                 <span className="relative z-10">ATLAS'ta Ara</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 transition group-hover:opacity-100" />
               </button>
-              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-7 py-3.5 text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95">
+              <button className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 sm:px-7 sm:py-3.5 sm:text-sm">
                 <span className="relative z-10">Şansımı Dene</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 opacity-0 transition group-hover:opacity-100" />
               </button>

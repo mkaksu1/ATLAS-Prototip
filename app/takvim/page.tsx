@@ -137,6 +137,7 @@ const menuItems = [
 ];
 
 export default function TakvimPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 7)); // Feb 7, 2026
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -198,8 +199,18 @@ export default function TakvimPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-80 flex-col border-r border-slate-200 bg-slate-50/50 overflow-hidden">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-80 flex-col border-r border-slate-200 bg-white overflow-hidden transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -326,10 +337,18 @@ export default function TakvimPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold text-slate-900">
+        <header className="border-b border-slate-200 bg-white px-3 sm:px-6 py-4">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="mb-3 rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
                 {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
               </h1>
               <div className="flex gap-1">
@@ -341,7 +360,7 @@ export default function TakvimPage() {
                 </button>
                 <button
                   onClick={() => setSelectedDate(new Date(2026, 1, 7))}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                  className="hidden sm:block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                 >
                   Bugün
                 </button>
@@ -354,7 +373,7 @@ export default function TakvimPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3">
               {/* View Mode Toggle */}
               <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
                 <button

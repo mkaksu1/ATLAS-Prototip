@@ -114,6 +114,7 @@ export default function FinansPage() {
   const [selectedCategory, setSelectedCategory] = useState<"stocks" | "crypto" | "commodities" | "currencies">("stocks");
   const [favorites, setFavorites] = useState<number[]>([1, 11, 21, 31]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getCurrentAssets = () => {
     switch (selectedCategory) {
@@ -140,8 +141,18 @@ export default function FinansPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-80 flex-col border-r border-slate-200 bg-slate-50/50 overflow-hidden">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-80 flex-col border-r border-slate-200 bg-white overflow-hidden transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -270,25 +281,35 @@ export default function FinansPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white px-6 py-4">
+        <header className="border-b border-slate-200 bg-white px-3 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                {selectedCategory === "stocks" && "Hisse Senetleri"}
-                {selectedCategory === "crypto" && "Kripto Paralar"}
-                {selectedCategory === "commodities" && "Emtialar"}
-                {selectedCategory === "currencies" && "Döviz Kurları"}
-              </h1>
-              <p className="text-sm text-slate-600">Canlı piyasa verileri ve analizler</p>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+                  {selectedCategory === "stocks" && "Hisse Senetleri"}
+                  {selectedCategory === "crypto" && "Kripto Paralar"}
+                  {selectedCategory === "commodities" && "Emtialar"}
+                  {selectedCategory === "currencies" && "Döviz Kurları"}
+                </h1>
+                <p className="hidden sm:block text-sm text-slate-600">Canlı piyasa verileri ve analizler</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="relative hidden sm:block">
                 <input
                   type="text"
                   placeholder="Sembol veya isim ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 rounded-lg border border-slate-200 py-2 px-4 text-sm focus:border-blue-500 focus:outline-none"
+                  className="w-48 lg:w-64 rounded-lg border border-slate-200 py-2 px-4 text-sm focus:border-blue-500 focus:outline-none"
                 />
               </div>
               <button className="rounded-lg p-2 transition hover:bg-slate-100">

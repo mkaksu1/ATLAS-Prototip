@@ -174,6 +174,7 @@ const documentTypes = [
 ];
 
 export default function DokumanlarPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 3, 5]));
@@ -233,8 +234,18 @@ export default function DokumanlarPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r border-slate-200 bg-slate-50/50 overflow-hidden">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white overflow-hidden transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -324,9 +335,17 @@ export default function DokumanlarPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-1 items-center gap-4">
+        <header className="border-b border-slate-200 bg-white px-3 sm:px-6 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-1 items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
               <div className="relative flex-1 max-w-xl">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <input
@@ -339,7 +358,7 @@ export default function DokumanlarPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3">
               {/* View Mode Toggle */}
               <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
                 <button

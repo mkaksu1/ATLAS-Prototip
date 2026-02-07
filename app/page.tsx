@@ -227,10 +227,10 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-40">
-        <div className="w-full max-w-2xl space-y-8 text-center">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pt-4 pb-20">
+        <div className="w-full max-w-2xl space-y-10 text-center">
           {/* Logo */}
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-4 sm:space-y-5">
             <h1 className="animate-in fade-in slide-in-from-bottom-4 bg-gradient-to-r from-[#0B1B3D] via-[#2d5a9f] to-[#0B1B3D] bg-clip-text text-6xl font-black italic tracking-tight text-transparent drop-shadow-2xl duration-700 sm:text-[5.5rem] md:text-[7rem]">
               ATLAS
             </h1>

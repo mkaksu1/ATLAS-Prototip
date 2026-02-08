@@ -18,8 +18,10 @@ import {
   CodeBracketIcon,
   LanguageIcon,
   ChartBarIcon,
+  StarIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
-import { SparklesIcon as SparklesIconSolid } from "@heroicons/react/24/solid";
+import { SparklesIcon as SparklesIconSolid, StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 
 type Message = {
   id: number;
@@ -31,8 +33,9 @@ type Message = {
 type Conversation = {
   id: number;
   title: string;
-  lastMessage: string;
+  messages: Message[];
   timestamp: string;
+  starred?: boolean;
 };
 
 const quickPrompts = [
@@ -41,45 +44,105 @@ const quickPrompts = [
     title: "Fikir Üret",
     description: "Yeni projeler için yaratıcı fikirler",
     prompt: "Yenilikçi bir proje fikri üretmeme yardımcı olur musun?",
+    color: "from-yellow-500 to-amber-500"
   },
   {
     icon: CodeBracketIcon,
     title: "Kod Yaz",
     description: "Programlama sorunlarına çözüm",
     prompt: "Bir web uygulaması için örnek kod yazabilir misin?",
+    color: "from-blue-500 to-cyan-500"
   },
   {
     icon: LanguageIcon,
     title: "Çeviri Yap",
     description: "Metinleri farklı dillere çevir",
     prompt: "Bu metni İngilizce'ye çevirebilir misin?",
+    color: "from-green-500 to-emerald-500"
   },
   {
     icon: DocumentTextIcon,
     title: "Metin Yaz",
     description: "Profesyonel içerik oluştur",
     prompt: "Bir sunum için profesyonel bir giriş metni yazabilir misin?",
+    color: "from-purple-500 to-pink-500"
+  },
+  {
+    icon: ChartBarIcon,
+    title: "Analiz Yap",
+    description: "Veri ve trend analizi",
+    prompt: "Bir veri setini analiz etmeme yardımcı olur musun?",
+    color: "from-orange-500 to-red-500"
+  },
+  {
+    icon: ChatBubbleLeftRightIcon,
+    title: "Özet Çıkar",
+    description: "Uzun metinleri özetle",
+    prompt: "Bu uzun metni özetleyebilir misin?",
+    color: "from-indigo-500 to-violet-500"
   },
 ];
 
-const sampleConversations: Conversation[] = [
+const initialMockConversations: Conversation[] = [
   {
     id: 1,
     title: "Web Geliştirme Önerileri",
-    lastMessage: "React ile modern bir dashboard oluşturmak için...",
+    messages: [
+      {
+        id: 1,
+        role: "user",
+        content: "React ile modern bir dashboard nasıl oluşturabilirim?",
+        timestamp: new Date(Date.now() - 3600000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      },
+      {
+        id: 2,
+        role: "assistant",
+        content: "React ile modern bir dashboard oluşturmak için şu adımları izleyebilirsiniz:\n\n1. **Component Yapısı**: Dashboard'u küçük, yeniden kullanılabilir bileşenlere ayırın\n2. **State Management**: Redux veya Zustand kullanarak global state yönetimi\n3. **UI Framework**: Tailwind CSS veya Material-UI ile modern arayüz\n4. **Data Visualization**: Chart.js veya Recharts ile grafikler\n\nÖrnek bir yapı:\n```jsx\nfunction Dashboard() {\n  return (\n    <div className=\"grid grid-cols-4 gap-4\">\n      <StatCard title=\"Kullanıcılar\" value=\"1,234\" />\n      <Chart data={salesData} />\n    </div>\n  );\n}\n```",
+        timestamp: new Date(Date.now() - 3500000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      }
+    ],
     timestamp: "Bugün, 14:30",
+    starred: false,
   },
   {
     id: 2,
     title: "Veri Analizi Yöntemleri",
-    lastMessage: "Python pandas kullanarak veri temizleme...",
+    messages: [
+      {
+        id: 1,
+        role: "user",
+        content: "Python pandas ile veri temizleme işlemi nasıl yapılır?",
+        timestamp: new Date(Date.now() - 86400000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      },
+      {
+        id: 2,
+        role: "assistant",
+        content: "Python pandas ile veri temizleme için temel adımlar:\n\n**1. Eksik Değerleri Kontrol Etme:**\n```python\ndf.isnull().sum()\ndf.dropna()  # Eksik satırları sil\ndf.fillna(0)  # Eksikkleri 0 ile doldur\n```\n\n**2. Duplikatları Kaldırma:**\n```python\ndf.drop_duplicates()\n```\n\n**3. Veri Tiplerini Düzenleme:**\n```python\ndf['tarih'] = pd.to_datetime(df['tarih'])\ndf['fiyat'] = df['fiyat'].astype(float)\n```\n\n**4. Outlier Tespiti:**\n```python\nQ1 = df['değer'].quantile(0.25)\nQ3 = df['değer'].quantile(0.75)\nIQR = Q3 - Q1\n```\n\nBu yöntemlerle veri kalitenizi artırabilirsiniz.",
+        timestamp: new Date(Date.now() - 86000000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      }
+    ],
     timestamp: "Dün, 10:15",
+    starred: false,
   },
   {
     id: 3,
     title: "Proje Yönetimi",
-    lastMessage: "Agile metodolojisi ile proje planlama...",
+    messages: [
+      {
+        id: 1,
+        role: "user",
+        content: "Agile metodolojisi ile proje nasıl planlanır?",
+        timestamp: new Date(Date.now() - 172800000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      },
+      {
+        id: 2,
+        role: "assistant",
+        content: "Agile ile proje planlama adımları:\n\n**Sprint Planlaması:**\n- 2 haftalık sprint'ler belirleme\n- User story'leri önceliklendirme\n- Story point tahminleri (Fibonacci: 1, 2, 3, 5, 8)\n\n**Daily Standups:**\n- 15 dakikalık günlük toplantılar\n- Dün ne yaptım, bugün ne yapacağım, engeller\n\n**Sprint Review & Retro:**\n- Sprint sonunda demo\n- Neyi iyi yaptık, neleri geliştirebiliriz?\n\n**Backlog Yönetimi:**\n- Product backlog'u sürekli güncel tutma\n- Refinement toplantıları ile grooming\n\n**Araçlar:** Jira, Trello, Azure DevOps\n\nAgile'ın özü: Esneklik, iterasyon ve sürekli iyileştirme!",
+        timestamp: new Date(Date.now() - 172000000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+      }
+    ],
     timestamp: "2 gün önce",
+    starred: false,
   },
 ];
 
@@ -90,6 +153,8 @@ function AIPageContent() {
   const searchParams = useSearchParams();
   const queryText = searchParams.get("q") || "";
   
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -101,6 +166,119 @@ function AIPageContent() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Load conversations from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("atlasai_conversations");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setConversations(parsed);
+      } catch (e) {
+        // If parse fails, use initial mock conversations
+        setConversations(initialMockConversations);
+        localStorage.setItem("atlasai_conversations", JSON.stringify(initialMockConversations));
+      }
+    } else {
+      // First time, use mock conversations
+      setConversations(initialMockConversations);
+      localStorage.setItem("atlasai_conversations", JSON.stringify(initialMockConversations));
+    }
+  }, []);
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    if (conversations.length > 0) {
+      localStorage.setItem("atlasai_conversations", JSON.stringify(conversations));
+    }
+  }, [conversations]);
+
+  // Update current conversation messages when currentConversationId changes
+  useEffect(() => {
+    if (currentConversationId !== null) {
+      const conversation = conversations.find(c => c.id === currentConversationId);
+      if (conversation) {
+        setMessages(conversation.messages);
+      }
+    }
+  }, [currentConversationId]);
+
+  // Save current conversation when messages change (but not during typing)
+  useEffect(() => {
+    if (!isTyping && currentConversationId !== null && messages.length > 1) {
+      setConversations(prev => prev.map(conv => 
+        conv.id === currentConversationId 
+          ? { 
+              ...conv, 
+              messages, 
+              title: messages[1]?.content.slice(0, 50) || conv.title,
+              timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+            }
+          : conv
+      ));
+    }
+  }, [isTyping]);
+
+  const startNewConversation = () => {
+    // Eğer mevcut sohbette sadece welcome mesajı varsa, yeni sohbet açma
+    if (messages.length === 1 && messages[0].role === "assistant") {
+      return;
+    }
+
+    const newId = Date.now();
+    setCurrentConversationId(newId);
+    setMessages([
+      {
+        id: 1,
+        role: "assistant",
+        content: "Merhaba! Ben ATLAS.AI, size nasıl yardımcı olabilirim?",
+        timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+      },
+    ]);
+    const newConversation: Conversation = {
+      id: newId,
+      title: "Yeni Sohbet",
+      messages: [
+        {
+          id: 1,
+          role: "assistant",
+          content: "Merhaba! Ben ATLAS.AI, size nasıl yardımcı olabilirim?",
+          timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+        },
+      ],
+      timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+      starred: false,
+    };
+    setConversations(prev => [newConversation, ...prev]);
+  };
+
+  const deleteConversation = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversations(prev => prev.filter(conv => conv.id !== id));
+    if (currentConversationId === id) {
+      setCurrentConversationId(null);
+      setMessages([
+        {
+          id: 1,
+          role: "assistant",
+          content: "Merhaba! Ben ATLAS.AI, size nasıl yardımcı olabilirim?",
+          timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    }
+  };
+
+  const toggleStarred = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversations(prev => prev.map(conv => 
+      conv.id === id ? { ...conv, starred: !conv.starred } : conv
+    ));
+  };
+
+  const loadConversation = (id: number) => {
+    setCurrentConversationId(id);
+    setSidebarOpen(false);
+  };
   
   useEffect(() => {
     if (queryText) {
@@ -242,28 +420,19 @@ function AIPageContent() {
       }`}>
         {/* Logo */}
         <div className="border-b border-slate-200 p-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0B1B3D] to-[#2d4a7c] text-white shadow-md">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] text-white shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
               <SparklesIcon className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold text-slate-900">ATLAS.AI</span>
+            <span className="text-lg font-black italic bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] bg-clip-text text-transparent">ATLAS.AI</span>
           </Link>
         </div>
 
         {/* New Chat Button */}
         <div className="border-b border-slate-200 p-4">
           <button
-            onClick={() => {
-              setMessages([
-                {
-                  id: 1,
-                  role: "assistant",
-                  content: "Merhaba! Ben ATLAS.AI, size nasıl yardımcı olabilirim?",
-                  timestamp: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
-                },
-              ]);
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-105 hover:shadow-lg active:scale-95"
+            onClick={startNewConversation}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#0B1B3D]/25 transition hover:scale-105 hover:shadow-xl hover:shadow-[#0B1B3D]/35 active:scale-95"
           >
             <PlusIcon className="h-5 w-5" />
             Yeni Sohbet
@@ -274,35 +443,63 @@ function AIPageContent() {
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
           <h3 className="mb-3 text-sm font-semibold text-slate-900">Geçmiş Sohbetler</h3>
           <div className="space-y-2">
-            {sampleConversations.map((conv) => (
-              <button
+            {conversations.map((conv) => (
+              <div
                 key={conv.id}
-                className="group w-full rounded-lg border border-slate-200 bg-white p-3 text-left transition hover:border-blue-300 hover:shadow-md"
+                className={`group relative w-full rounded-xl border p-3 transition hover:border-[#2d4a7c]/30 hover:shadow-lg hover:bg-[#0B1B3D]/5 cursor-pointer ${
+                  currentConversationId === conv.id 
+                    ? 'border-[#2d4a7c] bg-[#0B1B3D]/5' 
+                    : 'border-slate-200 bg-white'
+                }`}
+                onClick={() => loadConversation(conv.id)}
               >
-                <div className="mb-1 flex items-start justify-between">
-                  <h4 className="font-semibold text-slate-900 line-clamp-1 group-hover:text-blue-700">
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <h4 className={`font-semibold line-clamp-1 flex-1 group-hover:text-[#2d4a7c] ${
+                    currentConversationId === conv.id ? 'text-[#2d4a7c]' : 'text-slate-900'
+                  }`}>
                     {conv.title}
                   </h4>
-                  <ChatBubbleLeftRightIcon className="h-4 w-4 flex-shrink-0 text-slate-400" />
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={(e) => toggleStarred(conv.id, e)}
+                      className="rounded p-1 transition hover:bg-[#2d4a7c]/10"
+                      title={conv.starred ? "Yıldızı kaldır" : "Yıldızla"}
+                    >
+                      {conv.starred ? (
+                        <StarIconSolid className="h-4 w-4 text-yellow-500" />
+                      ) : (
+                        <StarIcon className="h-4 w-4 text-slate-400 hover:text-yellow-500" />
+                      )}
+                    </button>
+                    <button
+                      onClick={(e) => deleteConversation(conv.id, e)}
+                      className="rounded p-1 transition hover:bg-red-50"
+                      title="Sohbeti sil"
+                    >
+                      <TrashIcon className="h-4 w-4 text-slate-400 hover:text-red-500" />
+                    </button>
+                  </div>
                 </div>
-                <p className="mb-2 text-xs text-slate-600 line-clamp-2">{conv.lastMessage}</p>
+                <p className="mb-2 text-xs text-slate-600 line-clamp-2">
+                  {conv.messages[conv.messages.length - 1]?.content.slice(0, 60) || "Yeni sohbet"}...
+                </p>
                 <div className="flex items-center gap-1 text-xs text-slate-500">
                   <ClockIcon className="h-3 w-3" />
                   {conv.timestamp}
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Info */}
         <div className="border-t border-slate-200 p-4">
-          <div className="rounded-lg bg-gradient-to-br from-fuchsia-50 to-purple-50 p-4">
+          <div className="rounded-xl bg-gradient-to-br from-[#0B1B3D]/5 to-[#2d4a7c]/5 border border-[#0B1B3D]/10 p-4">
             <div className="mb-2 flex items-center gap-2">
-              <SparklesIconSolid className="h-5 w-5 text-fuchsia-600" />
-              <h4 className="font-semibold text-slate-900">ATLAS.AI</h4>
+              <SparklesIconSolid className="h-5 w-5 text-[#2d4a7c]" />
+              <h4 className="font-bold text-slate-900">ATLAS.AI</h4>
             </div>
-            <p className="text-xs text-slate-700">
+            <p className="text-xs text-slate-700 leading-relaxed">
               Yapay zeka destekli asistanınız. Sorularınızı yanıtlar, içerik üretir ve size yardımcı olur.
             </p>
           </div>
@@ -317,14 +514,14 @@ function AIPageContent() {
             <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+                className="rounded-xl p-2 text-slate-600 transition hover:bg-[#0B1B3D]/5 hover:text-[#2d4a7c] active:scale-95 lg:hidden"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900">ATLAS.AI</h1>
+                <h1 className="text-lg sm:text-xl font-black italic bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] bg-clip-text text-transparent">ATLAS.AI</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -337,27 +534,27 @@ function AIPageContent() {
         </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50/30 to-white p-6">
+        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-[#0B1B3D]/5 p-6">
           {/* Quick Prompts - Show only when no messages */}
           {messages.length === 1 && (
-            <div className="mb-8">
-              <h2 className="mb-4 text-center text-lg font-bold text-slate-900">Ne yapmak istersiniz?</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="mb-6">
+              <h2 className="mb-4 text-center text-xl font-black bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] bg-clip-text text-transparent">Ne yapmak istersiniz?</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {quickPrompts.map((prompt, index) => (
                   <button
                     key={index}
                     onClick={() => handleQuickPrompt(prompt.prompt)}
-                    className="group rounded-xl border border-slate-200 bg-white p-5 text-left transition hover:border-fuchsia-300 hover:shadow-lg"
+                    className="group rounded-xl border border-slate-200 bg-white p-3 text-center transition hover:border-[#2d4a7c]/30 hover:shadow-xl hover:-translate-y-1 active:translate-y-0"
                   >
-                    <div className="mb-3 flex items-center gap-3">
-                      <div className="rounded-lg bg-gradient-to-br from-fuchsia-100 to-purple-100 p-2">
-                        <prompt.icon className="h-6 w-6 text-fuchsia-600" />
+                    <div className="mb-2 flex justify-center">
+                      <div className={`rounded-lg bg-gradient-to-br ${prompt.color} p-2 shadow-md transition-transform duration-300 group-hover:scale-110`}>
+                        <prompt.icon className="h-5 w-5 text-white" />
                       </div>
-                      <h3 className="font-bold text-slate-900 group-hover:text-fuchsia-700">
-                        {prompt.title}
-                      </h3>
                     </div>
-                    <p className="text-sm text-slate-600">{prompt.description}</p>
+                    <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#2d4a7c] mb-1">
+                      {prompt.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 line-clamp-2">{prompt.description}</p>
                   </button>
                 ))}
               </div>
@@ -372,7 +569,7 @@ function AIPageContent() {
                 className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {message.role === "assistant" && (
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 shadow-lg">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] shadow-lg">
                     <SparklesIcon className="h-5 w-5 text-white" />
                   </div>
                 )}
@@ -384,7 +581,7 @@ function AIPageContent() {
                   }`}
                 >
                   {message.role === "assistant" ? (
-                    <div className="prose prose-sm max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-fuchsia-600 prose-code:bg-fuchsia-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-[''] prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-slate-900 prose-ul:list-disc prose-ol:list-decimal">
+                    <div className="prose prose-sm max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:text-[#2d4a7c] prose-code:bg-[#0B1B3D]/5 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-[''] prose-a:text-[#2d4a7c] prose-a:no-underline hover:prose-a:underline prose-strong:text-slate-900 prose-ul:list-disc prose-ol:list-decimal">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {message.content}
                       </ReactMarkdown>
@@ -394,14 +591,14 @@ function AIPageContent() {
                   )}
                   <p
                     className={`text-xs mt-2 ${
-                      message.role === "user" ? "text-blue-200" : "text-slate-500"
+                      message.role === "user" ? "text-white/70" : "text-slate-500"
                     }`}
                   >
                     {message.timestamp}
                   </p>
                 </div>
                 {message.role === "user" && (
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-bold text-white shadow-lg">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] text-sm font-bold text-white shadow-lg">
                     AT
                   </div>
                 )}
@@ -411,14 +608,14 @@ function AIPageContent() {
             {/* Typing Indicator */}
             {isTyping && (
               <div className="flex gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 shadow-lg">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] shadow-lg">
                   <SparklesIcon className="h-5 w-5 text-white" />
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-white px-5 py-3">
                   <div className="flex gap-1">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "0ms" }} />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "150ms" }} />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: "300ms" }} />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-[#2d4a7c]" style={{ animationDelay: "0ms" }} />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-[#2d4a7c]" style={{ animationDelay: "150ms" }} />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-[#2d4a7c]" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
               </div>
@@ -430,10 +627,10 @@ function AIPageContent() {
         <div className="border-t border-slate-200 bg-white p-4">
           <div className="mx-auto max-w-3xl">
             <div className="flex items-end gap-3">
-              <button className="rounded-lg p-3 text-slate-600 transition hover:bg-slate-100">
+              <button className="rounded-xl p-3 text-slate-600 transition hover:bg-[#0B1B3D]/5 hover:text-[#2d4a7c] active:scale-95">
                 <PhotoIcon className="h-6 w-6" />
               </button>
-              <button className="rounded-lg p-3 text-slate-600 transition hover:bg-slate-100">
+              <button className="rounded-xl p-3 text-slate-600 transition hover:bg-[#0B1B3D]/5 hover:text-[#2d4a7c] active:scale-95">
                 <DocumentTextIcon className="h-6 w-6" />
               </button>
               <div className="relative flex-1">
@@ -443,18 +640,18 @@ function AIPageContent() {
                   onKeyPress={handleKeyPress}
                   placeholder="ATLAS.AI'ya bir şeyler sor..."
                   rows={1}
-                  className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 pr-12 text-sm focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
+                  className="w-full resize-none rounded-xl border-2 border-slate-200 px-4 py-3 pr-12 text-sm focus:border-[#2d4a7c] focus:outline-none focus:ring-2 focus:ring-[#2d4a7c]/20 transition"
                   style={{ minHeight: "48px", maxHeight: "200px" }}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim()}
-                  className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white transition hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                  className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] text-white shadow-lg transition hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100 active:scale-95"
                 >
                   <PaperAirplaneIcon className="h-4 w-4" />
                 </button>
               </div>
-              <button className="rounded-lg p-3 text-slate-600 transition hover:bg-slate-100">
+              <button className="rounded-xl p-3 text-slate-600 transition hover:bg-[#0B1B3D]/5 hover:text-[#2d4a7c] active:scale-95">
                 <MicrophoneIcon className="h-6 w-6" />
               </button>
             </div>

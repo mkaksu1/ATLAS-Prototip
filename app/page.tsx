@@ -50,6 +50,8 @@ export default function HomePage() {
   const [openProfile, setOpenProfile] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [designVersion, setDesignVersion] = useState<1 | 2>(1);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const hasVisited = localStorage.getItem("atlas_visited");
@@ -57,6 +59,11 @@ export default function HomePage() {
       setShowWelcomeDialog(true);
       localStorage.setItem("atlas_visited", "true");
     }
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
@@ -69,7 +76,33 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-50 flex items-center justify-end gap-2 px-3 py-4 sm:gap-3 sm:px-6 sm:py-5">
+      <header className="relative z-50 flex items-center justify-between gap-2 px-3 py-4 sm:gap-3 sm:px-6 sm:py-5">
+        {/* Design Toggle - Left Side */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDesignVersion(1)}
+            className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 ${
+              designVersion === 1
+                ? 'bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] text-white shadow-lg'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Tasarım 1
+          </button>
+          <button
+            onClick={() => setDesignVersion(2)}
+            className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 ${
+              designVersion === 2
+                ? 'bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] text-white shadow-lg'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Tasarım 2
+          </button>
+        </div>
+
+        {/* Right Side - Apps and Profile */}
+        <div className="flex items-center gap-2 sm:gap-3">
         <Link
           href="/mail"
           className="hidden rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm sm:block"
@@ -241,11 +274,14 @@ export default function HomePage() {
             </>
           )}
         </div>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pt-4 pb-20">
-        <div className="w-full max-w-2xl space-y-10 text-center">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 py-12">
+        {designVersion === 1 ? (
+          // TASARIM 1 - Orijinal Tasarım
+          <div className="w-full max-w-2xl space-y-10 text-center">
           {/* Logo */}
           <div className="space-y-4 sm:space-y-5">
             <h1 className="animate-in fade-in slide-in-from-bottom-4 bg-gradient-to-r from-[#0B1B3D] via-[#2d5a9f] to-[#0B1B3D] bg-clip-text text-6xl font-black italic tracking-tight text-transparent drop-shadow-2xl duration-700 sm:text-[5.5rem] md:text-[7rem]">
@@ -320,6 +356,130 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        ) : (
+          // TASARIM 2 - Premium Tasarım
+          <div className="w-full max-w-2xl space-y-10 text-center">
+            {/* Refined ATLAS Logo - Dynamic gradient like Apps button */}
+            <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-700 delay-100">
+              <div className="relative">
+                {/* Dynamic glow with gradient */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0B1B3D]/20 to-[#2d4a7c]/20 blur-[80px]" />
+                
+                {/* Main Logo with vibrant gradient matching Apps button */}
+                <h1 className="relative text-6xl sm:text-[5.5rem] md:text-[7rem] font-black italic tracking-tight bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] bg-clip-text text-transparent leading-none drop-shadow-2xl">
+                  ATLAS
+                </h1>
+              </div>
+            </div>
+
+            {/* Premium Search Box - Fits screen like Design 1 */}
+            <div className="animate-in fade-in duration-700 delay-200 mx-auto w-full">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (searchValue.trim()) {
+                  window.location.href = `/arama?q=${encodeURIComponent(searchValue)}`;
+                }
+              }}>
+                <div className="group relative overflow-hidden rounded-full border-2 border-slate-200/60 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-100 transition hover:border-[#0B1B3D]/30 hover:shadow-2xl">
+                  {/* Hover gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0B1B3D]/[0.03] via-[#1a3350]/[0.03] to-[#0B1B3D]/[0.03] opacity-0 transition duration-500 group-hover:opacity-100" />
+                  
+                  <div className="relative flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-7 sm:py-5">
+                    <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-slate-400 transition-all duration-300 group-hover:scale-110 group-hover:text-[#0B1B3D]" />
+                    <input
+                      type="text"
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      placeholder="ATLAS'ta ara veya bir URL gir"
+                      className="w-full border-none bg-transparent text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                    />
+                    {searchValue && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchValue("")}
+                        className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                      >
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Action Buttons - Compact like Design 1 */}
+                <div className="mt-6 sm:mt-8 flex justify-center gap-3 sm:gap-4">
+                  <button type="submit" className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-2.5 sm:px-7 sm:py-3.5 text-xs sm:text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-200/50 transition hover:shadow-xl hover:shadow-slate-900/20 active:scale-95">
+                    <span className="relative z-10">ATLAS'ta Ara</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0B1B3D]/5 to-[#1a3350]/5 opacity-0 transition group-hover:opacity-100" />
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const query = searchValue.trim() ? `?q=${encodeURIComponent(searchValue)}` : '';
+                      window.location.href = `/ai${query}`;
+                    }}
+                    className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 sm:px-7 sm:py-3.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-[#0B1B3D]/25 ring-1 ring-white/10 transition hover:shadow-xl hover:shadow-[#0B1B3D]/35 active:scale-95"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <SparklesIcon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                      ATLAS.AI'ya Sor
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/10 opacity-0 transition group-hover:opacity-100" />
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Premium App Grid - Compact */}
+            <div className="animate-in fade-in duration-700 delay-300 pt-6">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                {[
+                  { name: "Mail", Icon: EnvelopeIcon, href: "/mail" },
+                  { name: "Drive", Icon: FolderIcon, href: "/drive" },
+                  { name: "ATLAS.AI", Icon: SparklesIcon, href: "/ai" },
+                  { name: "ATLAS Chat", Icon: ChatBubbleLeftRightIcon, href: "/chat" },
+                  { name: "Takvim", Icon: CalendarIcon, href: "/takvim" },
+                  { name: "Toplantı", Icon: VideoCameraIcon, href: "/toplanti" },
+                  { name: "Dokümanlar", Icon: DocumentTextIcon, href: "/dokumanlar" },
+                  { name: "Kişiler", Icon: UserIcon, href: "/kisiler" },
+                ].map(({ name, Icon, href }) => (
+                  <Link
+                    key={name}
+                    href={href as any}
+                    className="group flex flex-col items-center gap-2 rounded-2xl p-2.5 sm:p-3 transition hover:bg-[#0B1B3D]/5"
+                  >
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-2xl bg-[#0B1B3D]/20 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] shadow-lg shadow-[#0B1B3D]/20 transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl">
+                        <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+                      </div>
+                    </div>
+                    <span className="text-center text-xs font-medium leading-tight text-slate-700">
+                      {name}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Info Text - Like Design 1 */}
+            <div className="animate-in fade-in duration-700 delay-400 space-y-2">
+              <p className="text-sm font-medium text-slate-600">
+                Türkiye'nin Dijital Ekosistemi
+              </p>
+              <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+                <span className="rounded-full bg-[#0B1B3D]/8 border border-[#0B1B3D]/15 px-3 py-1 font-medium transition-all duration-200 hover:scale-110 hover:bg-[#0B1B3D]/12 hover:shadow-md cursor-default">
+                  <span className="bg-gradient-to-r from-[#0B1B3D] to-[#1a3350] bg-clip-text text-transparent font-semibold">Yerli</span>
+                </span>
+                <span className="rounded-full bg-[#0B1B3D]/8 border border-[#0B1B3D]/15 px-3 py-1 font-medium transition-all duration-200 hover:scale-110 hover:bg-[#0B1B3D]/12 hover:shadow-md cursor-default">
+                  <span className="bg-gradient-to-r from-[#0B1B3D] to-[#1a3350] bg-clip-text text-transparent font-semibold">Güvenli</span>
+                </span>
+                <span className="rounded-full bg-[#0B1B3D]/8 border border-[#0B1B3D]/15 px-3 py-1 font-medium transition-all duration-200 hover:scale-110 hover:bg-[#0B1B3D]/12 hover:shadow-md cursor-default">
+                  <span className="bg-gradient-to-r from-[#0B1B3D] to-[#1a3350] bg-clip-text text-transparent font-semibold">Güçlü</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Welcome Dialog */}

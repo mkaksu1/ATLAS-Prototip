@@ -757,6 +757,19 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 border border-amber-100/50 shadow-sm">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <SparklesIcon className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        Bu uygulamanın bir <span className="font-bold text-amber-700">tasarım ve görselleştirme çalışması</span> olduğunu unutmayınız.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4 border border-purple-100/50 shadow-sm">
                   <div className="flex gap-3">
                     <div className="flex-shrink-0">

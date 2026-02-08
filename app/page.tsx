@@ -99,8 +99,8 @@ export default function HomePage() {
                 className="fixed inset-0 z-[100]" 
                 onClick={() => setOpen(false)}
               />
-              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 p-4 shadow-2xl backdrop-blur-xl duration-200 sm:p-6">
-                <div className="mb-4 flex items-center justify-between sm:mb-5">
+              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] max-h-[calc(100vh-100px)] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200 flex flex-col overflow-hidden">
+                <div className="flex-shrink-0 p-4 sm:p-6 pb-3 sm:pb-4 flex items-center justify-between border-b border-slate-100">
                   <p className="text-sm font-semibold text-slate-900">
                     ATLAS Uygulamaları
                   </p>
@@ -112,25 +112,27 @@ export default function HomePage() {
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {appLinks.map(({ name, Icon, href, color }) => (
-                    <Link
-                      key={name}
-                      href={href as any}
-                      onClick={() => setOpen(false)}
-                      className="group flex flex-col items-center gap-2 rounded-2xl p-3 transition hover:bg-slate-50/80"
-                    >
-                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${color} shadow-lg shadow-slate-900/10 transition group-hover:scale-110 group-hover:shadow-xl`}>
-                        <Icon className="h-7 w-7 text-white" />
-                      </div>
-                      <span className="text-center text-xs font-medium leading-tight text-slate-700">
-                        {name}
-                      </span>
-                    </Link>
-                  ))}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pt-3 sm:pt-4">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {appLinks.map(({ name, Icon, href, color }) => (
+                      <Link
+                        key={name}
+                        href={href as any}
+                        onClick={() => setOpen(false)}
+                        className="group flex flex-col items-center gap-2 rounded-2xl p-3 transition hover:bg-slate-50/80"
+                      >
+                        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${color} shadow-lg shadow-slate-900/10 transition group-hover:scale-110 group-hover:shadow-xl`}>
+                          <Icon className="h-7 w-7 text-white" />
+                        </div>
+                        <span className="text-center text-xs font-medium leading-tight text-slate-700">
+                          {name}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
                 
-                <div className="mt-5 border-t border-slate-100 pt-4">
+                <div className="flex-shrink-0 border-t border-slate-100 p-4 sm:p-6 pt-3 sm:pt-4">
                   <Link
                     href={("/uygulamalar" as any)}
                     onClick={() => setOpen(false)}

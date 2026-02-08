@@ -121,7 +121,7 @@ const locations: Location[] = [
     website: "millisaraylar.gov.tr",
     lat: 41.0391,
     lng: 29.0002,
-    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400",
+    image: "https://images.unsplash.com/photo-1541546484163-c85f6b1bb0f8?w=400",
     tags: ["Saray", "Müze", "Tarihi"],
     description: "Osmanlı Devleti'nin son dönem padişahlarının yaşadığı görkemli saray.",
   },
@@ -160,11 +160,11 @@ const locations: Location[] = [
 ];
 
 const menuItems = [
-  { name: "Keşfet", Icon: MapIcon, count: null, active: true },
-  { name: "Yıldızlı", Icon: StarIcon, count: 2, active: false },
-  { name: "Kayıtlı Yerler", Icon: BookmarkIcon, count: null, active: false },
-  { name: "Yol Tarifleri", Icon: MapPinIcon, count: null, active: false },
-  { name: "Geçmiş", Icon: ClockIcon, count: 8, active: false },
+  { id: "explore", name: "Keşfet", Icon: MapIcon },
+  { id: "starred", name: "Yıldızlı", Icon: StarIcon },
+  { id: "saved", name: "Kayıtlı Yerler", Icon: BookmarkIcon },
+  { id: "directions", name: "Yol Tarifleri", Icon: MapPinIcon },
+  { id: "history", name: "Geçmiş", Icon: ClockIcon },
 ];
 
 export default function HaritaPage() {
@@ -182,6 +182,14 @@ export default function HaritaPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchSuggestions, setSearchSuggestions] = useState<Location[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("explore");
+  const [savedPlaces, setSavedPlaces] = useState<Set<number>>(new Set([2, 5]));
+  const [visitHistory, setVisitHistory] = useState<number[]>([1, 3, 2, 4, 5, 1, 6, 3]);
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionFrom, setDirectionFrom] = useState("");
+  const [directionTo, setDirectionTo] = useState("");
+  const [showLocationsList, setShowLocationsList] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Initialize map with dynamic Leaflet import
   useEffect(() => {
@@ -315,8 +323,35 @@ export default function HaritaPage() {
     const matchesCategory = selectedCategory === "Tümü" || loc.category === selectedCategory;
     const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           loc.address.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    
+    // Menu-based filtering
+    let matchesMenu = true;
+    if (activeMenu === "starred") {
+      matchesMenu = favorites.has(loc.id);
+    } else if (activeMenu === "saved") {
+      matchesMenu = savedPlaces.has(loc.id);
+    } else if (activeMenu === "history") {
+      matchesMenu = visitHistory.includes(loc.id);
+    }
+    
+    return matchesCategory && matchesSearch && matchesMenu;
   });
+
+  const toggleSaved = (id: number) => {
+    setSavedPlaces((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const addToHistory = (id: number) => {
+    setVisitHistory((prev) => [id, ...prev.filter((i) => i !== id)].slice(0, 20));
+  };
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
@@ -411,28 +446,57 @@ export default function HaritaPage() {
 
         {/* Menu Items */}
         <nav className="space-y-1 border-b border-slate-200 px-3 py-3">
-          {menuItems.map(({ name, Icon, count, active }) => (
-            <button
-              key={name}
-              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
-                  ? "bg-blue-50 text-blue-700 shadow-sm"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <Icon className="h-5 w-5" />
-              <span className="flex-1 text-left">{name}</span>
-              {count && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    active ? "bg-blue-100 text-blue-700" : "bg-slate-200 text-slate-600"
-                  }`}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          ))}
+          {menuItems.map(({ id, name, Icon }) => {
+            const isActive = activeMenu === id;
+            let count = null;
+            if (id === "starred") count = favorites.size;
+            if (id === "saved") count = savedPlaces.size;
+            if (id === "history") count = new Set(visitHistory).size;
+            
+            return (
+              <button
+                key={id}
+                onClick={() => {
+                  if (id === "directions") {
+                    setActiveMenu(id);
+                    setShowDirections(true);
+                    setShowLocationsList(false);
+                  } else if (id === "explore") {
+                    // Eğer zaten explore modundaysak toggle yap
+                    if (activeMenu === "explore") {
+                      setShowLocationsList(!showLocationsList);
+                    } else {
+                      // Değilse explore moda geç ve aç
+                      setActiveMenu(id);
+                      setShowDirections(false);
+                      setShowLocationsList(true);
+                    }
+                  } else {
+                    setActiveMenu(id);
+                    setShowDirections(false);
+                    setShowLocationsList(true);
+                  }
+                }}
+                className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-50 text-blue-700 shadow-sm"
+                    : "text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="flex-1 text-left">{name}</span>
+                {count !== null && count > 0 && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      isActive ? "bg-blue-100 text-blue-700" : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Categories */}
@@ -461,146 +525,14 @@ export default function HaritaPage() {
             })}
           </div>
         </div>
-
-        {/* View Mode Toggle & Results */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
-          <p className="text-sm font-medium text-slate-700">
-            {filteredLocations.length} konum
-          </p>
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`rounded p-1.5 transition ${
-                viewMode === "list"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              <ListBulletIcon className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`rounded p-1.5 transition ${
-                viewMode === "grid"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              <Squares2X2Icon className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Locations List */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {viewMode === "list" ? (
-            <div className="divide-y divide-slate-100">
-              {filteredLocations.map((location) => {
-                const isSelected = selectedLocation?.id === location.id;
-                const isFavorited = favorites.has(location.id);
-                
-                return (
-                  <div
-                    key={location.id}
-                    onClick={() => setSelectedLocation(location)}
-                    className={`group cursor-pointer p-4 transition hover:bg-slate-50 ${
-                      isSelected ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <div className="mb-2 flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-900">{location.name}</h3>
-                        <p className="text-xs text-slate-500">{location.category}</p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(location.id);
-                        }}
-                        className={`shrink-0 transition ${isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-                      >
-                        {isFavorited ? (
-                          <StarSolidIcon className="h-5 w-5 text-yellow-500" />
-                        ) : (
-                          <StarIcon className="h-5 w-5 text-slate-300 hover:text-yellow-500" />
-                        )}
-                      </button>
-                    </div>
-                    <div className="mb-2 flex items-center gap-3 text-xs">
-                      <div className="flex items-center gap-1">
-                        <StarSolidIcon className="h-4 w-4 text-yellow-500" />
-                        <span className="font-medium text-slate-900">{location.rating}</span>
-                        <span className="text-slate-400">({location.reviews.toLocaleString()})</span>
-                      </div>
-                      <span className="text-slate-400">•</span>
-                      <span className="text-slate-600">{location.distance}</span>
-                    </div>
-                    <div className="flex items-start gap-1.5">
-                      <ClockIcon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                      <p className="text-xs text-slate-600">{location.hours}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 p-4">
-              {filteredLocations.map((location) => {
-                const isSelected = selectedLocation?.id === location.id;
-                const isFavorited = favorites.has(location.id);
-                
-                return (
-                  <div
-                    key={location.id}
-                    onClick={() => setSelectedLocation(location)}
-                    className={`group cursor-pointer overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-lg ${
-                      isSelected
-                        ? "border-blue-500 ring-2 ring-blue-500/20"
-                        : "border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="relative aspect-video overflow-hidden bg-slate-100">
-                      <img
-                        src={location.image}
-                        alt={location.name}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(location.id);
-                        }}
-                        className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 backdrop-blur-sm transition hover:bg-white"
-                      >
-                        {isFavorited ? (
-                          <StarSolidIcon className="h-4 w-4 text-yellow-500" />
-                        ) : (
-                          <StarIcon className="h-4 w-4 text-slate-600" />
-                        )}
-                      </button>
-                    </div>
-                    <div className="p-3">
-                      <h3 className="mb-1 text-sm font-semibold text-slate-900 line-clamp-1">
-                        {location.name}
-                      </h3>
-                      <div className="mb-1 flex items-center gap-1 text-xs">
-                        <StarSolidIcon className="h-3.5 w-3.5 text-yellow-500" />
-                        <span className="font-medium text-slate-900">{location.rating}</span>
-                      </div>
-                      <p className="text-xs text-slate-500">{location.distance}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </aside>
 
       {/* Main Map Area */}
-      <main className="relative flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-3 sm:px-6 py-3">
+      <main className="relative flex flex-1 overflow-hidden">
+        {/* Map Container */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="flex items-center justify-between border-b border-slate-200 bg-white px-3 sm:px-6 py-3">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -651,7 +583,10 @@ export default function HaritaPage() {
             </div>
 
             {/* Settings */}
-            <button className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100">
+            <button 
+              onClick={() => setShowSettings(true)}
+              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
+            >
               <Cog6ToothIcon className="h-5 w-5" />
             </button>
           </div>
@@ -660,6 +595,266 @@ export default function HaritaPage() {
         {/* Map */}
         <div className="relative flex-1">
           <div ref={containerRef} className="h-full w-full" />
+
+          {/* Locations List Toggle Button - Show for all menus except directions */}
+          {activeMenu !== "directions" && (
+            <button
+              onClick={() => setShowLocationsList(!showLocationsList)}
+              className="absolute left-6 top-6 z-[1000] flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 shadow-lg transition hover:bg-slate-50"
+            >
+              <ListBulletIcon className="h-5 w-5 text-slate-700" />
+              <span className="text-sm font-semibold text-slate-900">
+                {filteredLocations.length} Konum
+              </span>
+            </button>
+          )}
+
+          {/* Directions Toggle Button */}
+          {activeMenu === "directions" && !showDirections && (
+            <button
+              onClick={() => setShowDirections(true)}
+              className="absolute left-6 top-6 z-[1000] flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-white shadow-lg transition hover:scale-105"
+            >
+              <MapPinIcon className="h-5 w-5" />
+              <span className="text-sm font-semibold">Yol Tarifi</span>
+            </button>
+          )}
+
+          {/* Floating Directions Panel */}
+          {showDirections && activeMenu === "directions" && (
+            <div className="absolute left-6 top-20 z-[1000] w-96 rounded-xl bg-white p-6 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-slate-900">Yol Tarifi Al</h3>
+                <button
+                  onClick={() => {
+                    setShowDirections(false);
+                    setActiveMenu("explore");
+                    setShowLocationsList(true);
+                  }}
+                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Başlangıç Noktası</label>
+                  <input
+                    type="text"
+                    value={directionFrom}
+                    onChange={(e) => setDirectionFrom(e.target.value)}
+                    placeholder="Nereden..."
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Varış Noktası</label>
+                  <input
+                    type="text"
+                    value={directionTo}
+                    onChange={(e) => setDirectionTo(e.target.value)}
+                    placeholder="Nereye..."
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    if (directionFrom && directionTo) {
+                      alert(`🚗 Yol Tarifi\n\nBaşlangıç: ${directionFrom}\nVariş: ${directionTo}\n\nTahmini Süre: 25 dk\nMesafe: 12.4 km\n\n(Bu bir demo uygulamasıdır)`);
+                    }
+                  }}
+                  className="w-full rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-3 text-sm font-semibold text-white transition hover:scale-105 active:scale-95"
+                >
+                  Yol Tarifi Al
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Locations Panel */}
+          {showLocationsList && (
+            <div className="absolute left-6 top-20 z-[1000] w-96 max-h-[calc(100vh-200px)] overflow-hidden rounded-xl bg-white shadow-2xl">
+              {/* Panel Header */}
+              <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-sm font-bold text-slate-900">Konumlar</h3>
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                    {filteredLocations.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1 rounded-lg bg-slate-200 p-1">
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`rounded p-1 transition ${
+                        viewMode === "list"
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      <ListBulletIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("grid")}
+                      className={`rounded p-1 transition ${
+                        viewMode === "grid"
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      <Squares2X2Icon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setShowLocationsList(false)}
+                    className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Locations Content */}
+              <div className="overflow-y-auto max-h-[calc(100vh-280px)]">
+                {viewMode === "list" ? (
+                  <div className="divide-y divide-slate-100">
+                    {filteredLocations.map((location) => {
+                      const isSelected = selectedLocation?.id === location.id;
+                      const isFavorited = favorites.has(location.id);
+                      
+                      return (
+                        <div
+                          key={location.id}
+                          onClick={() => {
+                            setSelectedLocation(location);
+                            addToHistory(location.id);
+                          }}
+                          className={`group cursor-pointer p-3 transition hover:bg-slate-50 ${
+                            isSelected ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <div className="mb-1.5 flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <h3 className="text-sm font-semibold text-slate-900">{location.name}</h3>
+                              <p className="text-xs text-slate-500">{location.category}</p>
+                            </div>
+                            <div className="flex shrink-0 gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleFavorite(location.id);
+                                }}
+                                className={`transition ${isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                              >
+                                {isFavorited ? (
+                                  <StarSolidIcon className="h-4 w-4 text-yellow-500" />
+                                ) : (
+                                  <StarIcon className="h-4 w-4 text-slate-300 hover:text-yellow-500" />
+                                )}
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleSaved(location.id);
+                                }}
+                                className={`transition ${savedPlaces.has(location.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                              >
+                                {savedPlaces.has(location.id) ? (
+                                  <BookmarkIcon className="h-4 w-4 fill-blue-500 text-blue-500" />
+                                ) : (
+                                  <BookmarkIcon className="h-4 w-4 text-slate-300 hover:text-blue-500" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="mb-1.5 flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-1">
+                              <StarSolidIcon className="h-3.5 w-3.5 text-yellow-500" />
+                              <span className="font-medium text-slate-900">{location.rating}</span>
+                              <span className="text-slate-400">({location.reviews.toLocaleString()})</span>
+                            </div>
+                            <span className="text-slate-400">•</span>
+                            <span className="text-slate-600">{location.distance}</span>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <ClockIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+                            <p className="text-xs text-slate-600">{location.hours}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 p-3">
+                    {filteredLocations.map((location) => {
+                      const isSelected = selectedLocation?.id === location.id;
+                      const isFavorited = favorites.has(location.id);
+                      
+                      return (
+                        <div
+                          key={location.id}
+                          onClick={() => {
+                            setSelectedLocation(location);
+                            addToHistory(location.id);
+                          }}
+                          className={`group cursor-pointer overflow-hidden rounded-lg border transition-all duration-200 hover:shadow-md ${
+                            isSelected
+                              ? "border-blue-500 ring-2 ring-blue-500/20"
+                              : "border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          <div className="relative aspect-video overflow-hidden bg-slate-100">
+                            <img
+                              src={location.image}
+                              alt={location.name}
+                              className="h-full w-full object-cover transition group-hover:scale-105"
+                            />
+                            <div className="absolute right-1.5 top-1.5 flex gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleFavorite(location.id);
+                                }}
+                                className="rounded-full bg-white/90 p-1 backdrop-blur-sm transition hover:bg-white"
+                              >
+                                {isFavorited ? (
+                                  <StarSolidIcon className="h-3.5 w-3.5 text-yellow-500" />
+                                ) : (
+                                  <StarIcon className="h-3.5 w-3.5 text-slate-600" />
+                                )}
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleSaved(location.id);
+                                }}
+                                className="rounded-full bg-white/90 p-1 backdrop-blur-sm transition hover:bg-white"
+                              >
+                                {savedPlaces.has(location.id) ? (
+                                  <BookmarkIcon className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />
+                                ) : (
+                                  <BookmarkIcon className="h-3.5 w-3.5 text-slate-600" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="p-2">
+                            <h3 className="mb-0.5 text-xs font-semibold text-slate-900 line-clamp-1">
+                              {location.name}
+                            </h3>
+                            <div className="flex items-center gap-1 text-xs">
+                              <StarSolidIcon className="h-3 w-3 text-yellow-500" />
+                              <span className="font-medium text-slate-900">{location.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Zoom Controls */}
           <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-2">
@@ -687,58 +882,86 @@ export default function HaritaPage() {
               <ArrowPathIcon className="h-5 w-5 text-slate-700" />
             </button>
           </div>
+        </div>
+      </div>
 
-          {/* Selected Location Detail Card */}
-          {selectedLocation && (
-            <div className="absolute bottom-6 left-1/2 z-[1000] w-full max-w-lg -translate-x-1/2 rounded-xl bg-white p-5 shadow-2xl">
+      {/* Selected Location Detail Panel */}
+      {selectedLocation && (
+        <aside className="w-96 border-l border-slate-200 bg-white overflow-y-auto">
+          <div className="sticky top-0 z-10 border-b border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">Konum Detayları</h2>
               <button
                 onClick={() => setSelectedLocation(null)}
-                className="absolute right-4 top-4 rounded-full bg-slate-100 p-1 transition hover:bg-slate-200"
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
               >
-                <XMarkIcon className="h-4 w-4 text-slate-600" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
+            </div>
+          </div>
 
-              <div className="mb-4 flex items-start gap-4">
-                <img
-                  src={selectedLocation.image}
-                  alt={selectedLocation.name}
-                  className="h-28 w-28 rounded-lg object-cover shadow-md"
-                />
-                <div className="flex-1">
-                  <h3 className="mb-1 text-lg font-bold text-slate-900">{selectedLocation.name}</h3>
-                  <p className="mb-2 text-sm text-slate-500">{selectedLocation.category}</p>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="flex items-center gap-1">
-                      <StarSolidIcon className="h-4 w-4 text-yellow-500" />
-                      <span className="font-semibold text-slate-900">{selectedLocation.rating}</span>
-                      <span className="text-slate-400">({selectedLocation.reviews.toLocaleString()})</span>
-                    </div>
-                    <span className="text-slate-300">•</span>
-                    <span className="text-slate-600">{selectedLocation.distance}</span>
-                  </div>
+          <div className="p-6">
+            {/* Image */}
+            <div className="mb-4">
+              <img
+                src={selectedLocation.image}
+                alt={selectedLocation.name}
+                className="w-full h-48 rounded-xl object-cover shadow-md"
+              />
+            </div>
+
+            {/* Title & Category */}
+            <div className="mb-4">
+              <h3 className="mb-1 text-xl font-bold text-slate-900">{selectedLocation.name}</h3>
+              <p className="text-sm text-slate-500">{selectedLocation.category}</p>
+            </div>
+
+            {/* Rating */}
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <StarSolidIcon className="h-5 w-5 text-yellow-500" />
+                <span className="text-lg font-semibold text-slate-900">{selectedLocation.rating}</span>
+                <span className="text-sm text-slate-400">({selectedLocation.reviews.toLocaleString()} değerlendirme)</span>
+              </div>
+              <span className="text-slate-300">•</span>
+              <span className="text-sm text-slate-600">{selectedLocation.distance}</span>
+            </div>
+
+            {/* Description */}
+            <p className="mb-6 text-sm leading-relaxed text-slate-600">{selectedLocation.description}</p>
+
+            {/* Details */}
+            <div className="mb-6 space-y-3 text-sm">
+              <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3">
+                <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                <div>
+                  <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Adres</p>
+                  <p className="text-slate-900">{selectedLocation.address}</p>
                 </div>
               </div>
-
-              <p className="mb-4 text-sm text-slate-600">{selectedLocation.description}</p>
-
-              <div className="mb-4 space-y-2.5 text-sm">
-                <div className="flex items-start gap-3">
-                  <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                  <p className="text-slate-600">{selectedLocation.address}</p>
+              <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3">
+                <ClockIcon className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                <div>
+                  <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Çalışma Saatleri</p>
+                  <p className="text-slate-900">{selectedLocation.hours}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <ClockIcon className="h-4 w-4 text-slate-400" />
-                  <p className="text-slate-600">{selectedLocation.hours}</p>
-                </div>
-                {selectedLocation.phone && (
-                  <div className="flex items-center gap-3">
-                    <PhoneIcon className="h-4 w-4 text-slate-400" />
-                    <p className="text-slate-600">{selectedLocation.phone}</p>
+              </div>
+              {selectedLocation.phone && (
+                <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3">
+                  <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                  <div>
+                    <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Telefon</p>
+                    <a href={`tel:${selectedLocation.phone}`} className="text-slate-900 hover:text-blue-600">
+                      {selectedLocation.phone}
+                    </a>
                   </div>
-                )}
-                {selectedLocation.website && (
-                  <div className="flex items-center gap-3">
-                    <GlobeAltIcon className="h-4 w-4 text-slate-400" />
+                </div>
+              )}
+              {selectedLocation.website && (
+                <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3">
+                  <GlobeAltIcon className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                  <div>
+                    <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Website</p>
                     <a
                       href={`https://${selectedLocation.website}`}
                       target="_blank"
@@ -748,43 +971,215 @@ export default function HaritaPage() {
                       {selectedLocation.website}
                     </a>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
-              <div className="mb-4 flex flex-wrap gap-1.5">
+            {/* Tags */}
+            <div className="mb-6">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Etiketler</p>
+              <div className="flex flex-wrap gap-2">
                 {selectedLocation.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+                    className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
+            </div>
 
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => {
-                    alert(`📍 ${selectedLocation.name}\n\n${selectedLocation.address}\n\n(Bu bir demo uygulamasıdır. Gerçek yol tarifi özelliği eklenebilir.)`);
-                  }}
-                  className="flex-1 rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-sm font-semibold text-white transition hover:scale-105 active:scale-95"
+            {/* Actions */}
+            <div className="space-y-2">
+              <button 
+                onClick={() => {
+                  addToHistory(selectedLocation.id);
+                  setDirectionFrom("Konumum");
+                  setDirectionTo(selectedLocation.name);
+                  setActiveMenu("directions");
+                  setShowDirections(true);
+                  alert(`📍 ${selectedLocation.name}\n\n${selectedLocation.address}\n\nTahmini Süre: 25 dk\nMesafe: ${selectedLocation.distance}\n\n(Bu bir demo uygulamasıdır. Yol Tarifleri menüsüne yönlendirildiniz.)`);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-3 text-sm font-semibold text-white transition hover:scale-105 active:scale-95"
+              >
+                <MapPinIcon className="h-5 w-5" />
+                Yol Tarifi Al
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => toggleSaved(selectedLocation.id)}
+                  className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
+                    savedPlaces.has(selectedLocation.id)
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
                 >
-                  Yol Tarifi
+                  {savedPlaces.has(selectedLocation.id) ? (
+                    <BookmarkIcon className="h-5 w-5 fill-current" />
+                  ) : (
+                    <BookmarkIcon className="h-5 w-5" />
+                  )}
+                  {savedPlaces.has(selectedLocation.id) ? "Kaydedildi" : "Kaydet"}
                 </button>
                 <button
                   onClick={() => toggleFavorite(selectedLocation.id)}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 transition hover:bg-slate-50"
+                  className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
+                    favorites.has(selectedLocation.id)
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
                 >
                   {favorites.has(selectedLocation.id) ? (
-                    <StarSolidIcon className="h-5 w-5 text-yellow-500" />
+                    <StarSolidIcon className="h-5 w-5" />
                   ) : (
-                    <StarIcon className="h-5 w-5 text-slate-400" />
+                    <StarIcon className="h-5 w-5" />
                   )}
+                  {favorites.has(selectedLocation.id) ? "Yıldızlı" : "Yıldızla"}
                 </button>
               </div>
             </div>
-          )}
+          </div>
+        </aside>
+      )}
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md animate-in fade-in zoom-in duration-200 rounded-2xl bg-white shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <h2 className="text-xl font-bold text-slate-900">Ayarlar</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Map Style */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-slate-900">Harita Stili</h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setMapStyle("default");
+                      setShowSettings(false);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 transition ${
+                      mapStyle === "default"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="font-medium">Varsayılan</span>
+                    {mapStyle === "default" && (
+                      <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMapStyle("satellite");
+                      setShowSettings(false);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 transition ${
+                      mapStyle === "satellite"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="font-medium">Uydu</span>
+                    {mapStyle === "satellite" && (
+                      <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMapStyle("terrain");
+                      setShowSettings(false);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 transition ${
+                      mapStyle === "terrain"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="font-medium">Arazi</span>
+                    {mapStyle === "terrain" && (
+                      <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* View Mode */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-slate-900">Konum Görünümü</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 transition ${
+                      viewMode === "list"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <ListBulletIcon className="h-5 w-5" />
+                    <span className="font-medium">Liste</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 transition ${
+                      viewMode === "grid"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Squares2X2Icon className="h-5 w-5" />
+                    <span className="font-medium">Grid</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="rounded-lg bg-slate-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-slate-700">İstatistikler</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Toplam Konum:</span>
+                    <span className="font-semibold text-slate-900">{locations.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Yıldızlı:</span>
+                    <span className="font-semibold text-slate-900">{favorites.size}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Kayıtlı:</span>
+                    <span className="font-semibold text-slate-900">{savedPlaces.size}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Geçmiş:</span>
+                    <span className="font-semibold text-slate-900">{new Set(visitHistory).size}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 p-4">
+              <button
+                onClick={() => setShowSettings(false)}
+                className="w-full rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-sm font-semibold text-white transition hover:scale-105 active:scale-95"
+              >
+                Tamam
+              </button>
+            </div>
+          </div>
         </div>
+      )}
       </main>
     </div>
   );

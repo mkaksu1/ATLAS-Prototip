@@ -23,8 +23,10 @@ import {
   ArchiveBoxIcon,
   ArrowDownTrayIcon,
   ArrowUpOnSquareIcon,
+  ArrowUpTrayIcon,
   PencilIcon,
   DocumentDuplicateIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid, FolderIcon as FolderIconSolid } from "@heroicons/react/24/solid";
 
@@ -140,12 +142,11 @@ const files: FileItem[] = [
 ];
 
 const menuItems = [
-  { name: "Dosyalarım", Icon: FolderIcon, active: true },
-  { name: "Paylaşılanlar", Icon: UsersIcon, active: false },
-  { name: "Son Kullanılan", Icon: ClockIcon, active: false },
-  { name: "Yıldızlı", Icon: StarIcon, active: false },
-  { name: "Çöp Kutusu", Icon: TrashIcon, active: false },
-  { name: "Depolama", Icon: CloudIcon, active: false },
+  { id: "my-files", name: "Dosyalarım", Icon: FolderIcon },
+  { id: "shared", name: "Paylaşılanlar", Icon: UsersIcon },
+  { id: "recent", name: "Son Kullanılan", Icon: ClockIcon },
+  { id: "starred", name: "Yıldızlı", Icon: StarIcon },
+  { id: "trash", name: "Çöp Kutusu", Icon: TrashIcon },
 ];
 
 const getFileIcon = (type: string) => {
@@ -210,8 +211,11 @@ export default function DrivePage() {
   const [starredFiles, setStarredFiles] = useState<number[]>(
     files.filter((f) => f.starred).map((f) => f.id)
   );
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("my-files");
+  const [showNewDialog, setShowNewDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<number | null>(null);
 
   const toggleSelect = (id: number) => {
     setSelectedFiles((prev) =>
@@ -233,6 +237,23 @@ export default function DrivePage() {
       setSelectedFiles(files.map((f) => f.id));
     }
   };
+
+  const getFilteredFiles = () => {
+    let filtered = files;
+    
+    if (activeMenu === "starred") {
+      filtered = files.filter((f) => starredFiles.includes(f.id));
+    } else if (activeMenu === "shared") {
+      filtered = files.filter((f) => f.shared);
+    } else if (activeMenu === "recent") {
+      filtered = [...files].sort((a, b) => b.id - a.id);
+    }
+    
+    return filtered;
+  };
+
+  const filteredFiles = getFilteredFiles();
+  const currentFile = selectedFile ? files.find((f) => f.id === selectedFile) : null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -260,7 +281,10 @@ export default function DrivePage() {
 
         {/* New Button */}
         <div className="p-4">
-          <button className="group flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-3 text-white shadow-lg shadow-slate-900/10 transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95">
+          <button 
+            onClick={() => setShowNewDialog(true)}
+            className="group flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-3 text-white shadow-lg shadow-slate-900/10 transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95"
+          >
             <PlusIcon className="h-5 w-5" />
             <span className="font-semibold">Yeni</span>
           </button>
@@ -268,11 +292,15 @@ export default function DrivePage() {
 
         {/* Menu Items */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
-          {menuItems.map(({ name, Icon, active }) => (
+          {menuItems.map(({ id, name, Icon }) => (
             <button
-              key={name}
+              key={id}
+              onClick={() => {
+                setActiveMenu(id);
+                setSelectedFile(null);
+              }}
               className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
+                activeMenu === id
                   ? "bg-blue-50 text-blue-700 shadow-sm"
                   : "text-slate-700 hover:bg-slate-100"
               }`}
@@ -417,7 +445,7 @@ export default function DrivePage() {
               </div>
 
               {/* File Rows */}
-              {files.map((file) => {
+              {filteredFiles.map((file) => {
                 const FileIcon = getFileIcon(file.type);
                 const isSelected = selectedFiles.includes(file.id);
                 const isStarred = starredFiles.includes(file.id);
@@ -428,7 +456,7 @@ export default function DrivePage() {
                     className={`group flex cursor-pointer items-center gap-4 px-6 py-3 transition hover:bg-slate-50 ${
                       isSelected ? "bg-blue-50" : ""
                     }`}
-                    onClick={() => toggleSelect(file.id)}
+                    onClick={() => setSelectedFile(file.id)}
                   >
                     <input
                       type="checkbox"
@@ -478,7 +506,7 @@ export default function DrivePage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 p-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {files.map((file) => {
+              {filteredFiles.map((file) => {
                 const FileIcon = getFileIcon(file.type);
                 const isSelected = selectedFiles.includes(file.id);
                 const isStarred = starredFiles.includes(file.id);
@@ -486,7 +514,7 @@ export default function DrivePage() {
                 return (
                   <div
                     key={file.id}
-                    onClick={() => toggleSelect(file.id)}
+                    onClick={() => setSelectedFile(file.id)}
                     className={`group relative cursor-pointer overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-lg ${
                       isSelected
                         ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20"
@@ -558,6 +586,157 @@ export default function DrivePage() {
           )}
         </div>
       </main>
+
+      {/* New File/Folder Dialog */}
+      {showNewDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md animate-in fade-in zoom-in duration-200 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Yeni Oluştur</h2>
+              <button
+                onClick={() => setShowNewDialog(false)}
+                className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <button className="flex w-full items-center gap-3 rounded-lg border border-slate-200 p-4 text-left transition hover:border-blue-500 hover:bg-blue-50">
+                <FolderIcon className="h-6 w-6 text-blue-600" />
+                <div>
+                  <div className="font-semibold text-slate-900">Klasör</div>
+                  <div className="text-sm text-slate-500">Yeni klasör oluştur</div>
+                </div>
+              </button>
+              
+              <button className="flex w-full items-center gap-3 rounded-lg border border-slate-200 p-4 text-left transition hover:border-blue-500 hover:bg-blue-50">
+                <DocumentTextIcon className="h-6 w-6 text-green-600" />
+                <div>
+                  <div className="font-semibold text-slate-900">Doküman</div>
+                  <div className="text-sm text-slate-500">Yeni metin belgesi</div>
+                </div>
+              </button>
+
+              <button className="flex w-full items-center gap-3 rounded-lg border border-slate-200 p-4 text-left transition hover:border-blue-500 hover:bg-blue-50">
+                <ArrowUpTrayIcon className="h-6 w-6 text-purple-600" />
+                <div>
+                  <div className="font-semibold text-slate-900">Dosya Yükle</div>
+                  <div className="text-sm text-slate-500">Bilgisayardan yükle</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* File Detail Panel */}
+      {currentFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl animate-in fade-in zoom-in duration-200 rounded-2xl bg-white shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <div className="flex items-center gap-4">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${getFileBg(currentFile.type)}`}>
+                  {(() => {
+                    const FileIcon = getFileIcon(currentFile.type);
+                    return <FileIcon className={`h-6 w-6 ${getFileColor(currentFile.type)}`} />;
+                  })()}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">{currentFile.name}</h2>
+                  <p className="text-sm text-slate-500">{currentFile.type}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedFile(null)}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-700">Bilgiler</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Sahip:</span>
+                      <span className="font-medium text-slate-900">{currentFile.owner}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Değiştirilme:</span>
+                      <span className="font-medium text-slate-900">{currentFile.modified}</span>
+                    </div>
+                    {currentFile.size && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Boyut:</span>
+                        <span className="font-medium text-slate-900">{currentFile.size}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Durum:</span>
+                      <div className="flex gap-2">
+                        {starredFiles.includes(currentFile.id) && (
+                          <span className="flex items-center gap-1 text-yellow-600">
+                            <StarIconSolid className="h-4 w-4" />
+                            Yıldızlı
+                          </span>
+                        )}
+                        {currentFile.shared && (
+                          <span className="flex items-center gap-1 text-blue-600">
+                            <UsersIcon className="h-4 w-4" />
+                            Paylaşıldı
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-slate-700">İşlemler</h3>
+                  <div className="space-y-2">
+                    <button className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                      <ArrowDownTrayIcon className="h-4 w-4" />
+                      İndir
+                    </button>
+                    <button className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                      <ArrowUpOnSquareIcon className="h-4 w-4" />
+                      Paylaş
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStar(currentFile.id, e);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                    >
+                      {starredFiles.includes(currentFile.id) ? (
+                        <>
+                          <StarIconSolid className="h-4 w-4 text-yellow-500" />
+                          Yıldızı Kaldır
+                        </>
+                      ) : (
+                        <>
+                          <StarIcon className="h-4 w-4" />
+                          Yıldızla
+                        </>
+                      )}
+                    </button>
+                    <button className="flex w-full items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                      <TrashIcon className="h-4 w-4" />
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

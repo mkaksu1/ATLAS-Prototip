@@ -324,10 +324,10 @@ export default function HomePage() {
       {showWelcomeDialog && (
         <>
           <div 
-            className="fixed inset-0 z-[200] bg-slate-900/25 backdrop-blur-[2px] animate-in fade-in duration-300"
+            className="fixed inset-0 z-[200] bg-slate-900/25 backdrop-blur-[2px] transition-opacity duration-200"
             onClick={() => setShowWelcomeDialog(false)}
           />
-          <div className="fixed left-1/2 top-1/2 z-[210] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="fixed left-1/2 top-1/2 z-[210] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200">
             <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-2xl shadow-slate-900/10 sm:p-8">
               {/* Header */}
               <div className="mb-4 flex items-start justify-between">

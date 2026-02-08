@@ -99,7 +99,7 @@ export default function HomePage() {
                 className="fixed inset-0 z-[100]" 
                 onClick={() => setOpen(false)}
               />
-              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 z-[110] mt-2 w-[calc(100vw-1.5rem)] max-w-[420px] max-h-[calc(100vh-100px)] animate-in fade-in slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200 flex flex-col overflow-hidden">
+              <div className="fixed left-3 right-3 bottom-3 top-auto sm:absolute sm:left-auto sm:right-0 sm:bottom-auto sm:top-auto z-[110] sm:mt-2 w-auto sm:max-w-[420px] max-h-[calc(100vh-120px)] sm:max-h-[calc(100vh-100px)] animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-top-2 rounded-3xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl duration-200 flex flex-col overflow-hidden">
                 <div className="flex-shrink-0 p-4 sm:p-6 pb-3 sm:pb-4 flex items-center justify-between border-b border-slate-100">
                   <p className="text-sm font-semibold text-slate-900">
                     ATLAS Uygulamaları

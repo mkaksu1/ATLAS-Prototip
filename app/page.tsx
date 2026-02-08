@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Squares2X2Icon,
@@ -49,6 +49,15 @@ export default function HomePage() {
   const [open, setOpen] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("atlas_visited");
+    if (!hasVisited) {
+      setShowWelcomeDialog(true);
+      localStorage.setItem("atlas_visited", "true");
+    }
+  }, []);
 
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-white to-slate-50/30">
@@ -77,10 +86,10 @@ export default function HomePage() {
         <div className="relative">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:text-slate-900 hover:shadow-sm"
+            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-900/30 active:scale-95"
             aria-label="Uygulamalar"
           >
-            <Squares2X2Icon className="h-5 w-5" />
+            <Squares2X2Icon className="h-5 w-5 transition-transform duration-300 group-hover:rotate-180" />
             <span className="hidden sm:inline">Uygulamalar</span>
           </button>
           
@@ -300,7 +309,7 @@ export default function HomePage() {
           {/* Info Text */}
           <div className="animate-in fade-in slide-in-from-bottom-4 space-y-2 duration-700 delay-300">
             <p className="text-sm font-medium text-slate-600">
-              Türkiye'nin Milli Arama Motoru
+              Türkiye'nin Dijital Ekosistemi
             </p>
             <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
               <span className="rounded-full bg-green-100 px-3 py-1 font-medium text-green-700 transition-all duration-200 hover:scale-110 hover:bg-green-200 hover:shadow-md cursor-default">Yerli</span>
@@ -310,6 +319,78 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+
+      {/* Welcome Dialog */}
+      {showWelcomeDialog && (
+        <>
+          <div 
+            className="fixed inset-0 z-[200] bg-slate-900/25 backdrop-blur-[2px] animate-in fade-in duration-300"
+            onClick={() => setShowWelcomeDialog(false)}
+          />
+          <div className="fixed left-1/2 top-1/2 z-[210] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-2xl shadow-slate-900/10 sm:p-8">
+              {/* Header */}
+              <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0B1B3D] to-[#2d4a7c] shadow-lg">
+                    <span className="text-xl font-black italic text-white">A</span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">ATLAS'a Hoşgeldiniz</h2>
+                    <p className="text-sm text-slate-500">Türkiye'nin Dijital Platformu</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowWelcomeDialog(false)}
+                  className="flex-shrink-0 rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-600 active:scale-95"
+                  aria-label="Kapat"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="space-y-4">
+                <div className="rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 p-4 border border-blue-100/50 shadow-sm">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        Bu çalışma <span className="font-bold text-blue-700">Turkcell Yarının Teknoloji Liderleri</span> yarışması için hazırlanmıştır.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4 border border-purple-100/50 shadow-sm">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <Squares2X2Icon className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        <span className="font-bold">17 farklı konsept uygulamayı</span> keşfetmeyi unutmayın! Mail, AI asistanı, video platformu ve daha fazlası...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Button */}
+              <button
+                onClick={() => setShowWelcomeDialog(false)}
+                className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-6 py-3 font-semibold text-white shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-900/30 active:scale-95"
+              >
+                Keşfetmeye Başla
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-slate-100 bg-white/50 backdrop-blur-sm">

@@ -13,6 +13,11 @@ import {
   GlobeAltIcon,
   ArrowPathIcon,
   FunnelIcon,
+  XMarkIcon,
+  BellIcon,
+  ShoppingCartIcon,
+  PlusIcon,
+  MinusIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 
@@ -115,6 +120,14 @@ export default function FinansPage() {
   const [favorites, setFavorites] = useState<number[]>([1, 11, 21, 31]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [portfolio, setPortfolio] = useState<{id: number, amount: number}[]>([
+    {id: 1, amount: 100},
+    {id: 11, amount: 0.25},
+    {id: 21, amount: 10}
+  ]);
+  const [showPortfolio, setShowPortfolio] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "detail">("list");
 
   const getCurrentAssets = () => {
     switch (selectedCategory) {
@@ -312,8 +325,15 @@ export default function FinansPage() {
                   className="w-48 lg:w-64 rounded-lg border border-slate-200 py-2 px-4 text-sm focus:border-blue-500 focus:outline-none"
                 />
               </div>
+              <button 
+                onClick={() => setShowPortfolio(true)}
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-4 py-2 text-sm font-semibold text-white transition hover:scale-105"
+              >
+                <ShoppingCartIcon className="h-5 w-5" />
+                <span className="hidden sm:inline">Portföy</span>
+              </button>
               <button className="rounded-lg p-2 transition hover:bg-slate-100">
-                <FunnelIcon className="h-5 w-5 text-slate-600" />
+                <BellIcon className="h-5 w-5 text-slate-600" />
               </button>
               <button className="rounded-lg p-2 transition hover:bg-slate-100">
                 <ArrowPathIcon className="h-5 w-5 text-slate-600" />
@@ -368,13 +388,15 @@ export default function FinansPage() {
 
         {/* Assets List */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6">
-            <h2 className="mb-4 text-lg font-bold text-slate-900">
-              {selectedCategory === "stocks" && "Borsa İstanbul Hisseleri"}
-              {selectedCategory === "crypto" && "Kripto Para Piyasası"}
-              {selectedCategory === "commodities" && "Emtia Fiyatları"}
-              {selectedCategory === "currencies" && "Döviz Piyasası"}
-            </h2>
+          {viewMode === "list" ? (
+            <>
+              <div className="mb-6">
+                <h2 className="mb-4 text-lg font-bold text-slate-900">
+                  {selectedCategory === "stocks" && "Borsa İstanbul Hisseleri"}
+                  {selectedCategory === "crypto" && "Kripto Para Piyasası"}
+                  {selectedCategory === "commodities" && "Emtia Fiyatları"}
+                  {selectedCategory === "currencies" && "Döviz Piyasası"}
+                </h2>
             <div className="space-y-3">
               {filteredAssets.map((asset) => (
                 <div
@@ -392,6 +414,18 @@ export default function FinansPage() {
                         <StarIcon className="h-5 w-5 text-slate-400" />
                       )}
                     </button>
+
+                    {/* Mini Chart */}
+                    <div className="hidden md:block h-12 w-24">
+                      <svg viewBox="0 0 100 50" className="h-full w-full">
+                        <polyline
+                          fill="none"
+                          stroke={asset.change >= 0 ? "#10b981" : "#ef4444"}
+                          strokeWidth="2"
+                          points="0,40 20,35 40,25 60,30 80,20 100,15"
+                        />
+                      </svg>
+                    </div>
 
                     <div className="flex-1">
                       <div className="mb-1 flex items-center gap-3">
@@ -428,7 +462,13 @@ export default function FinansPage() {
                       </div>
                     </div>
 
-                    <button className="rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-6 py-2.5 text-sm font-semibold text-white transition hover:scale-105 active:scale-95">
+                    <button 
+                      onClick={() => {
+                        setSelectedAsset(asset);
+                        setViewMode("detail");
+                      }}
+                      className="rounded-lg bg-gradient-to-r from-[#0B1B3D] to-[#2d4a7c] px-6 py-2.5 text-sm font-semibold text-white transition hover:scale-105 active:scale-95"
+                    >
                       Detay
                     </button>
                   </div>
@@ -476,8 +516,263 @@ export default function FinansPage() {
               ))}
             </div>
           </div>
+            </>
+          ) : selectedAsset && (
+            <div>
+              {/* Back Button */}
+              <button
+                onClick={() => setViewMode("list")}
+                className="mb-6 flex items-center gap-2 text-slate-600 transition hover:text-slate-900"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-semibold">Geri Dön</span>
+              </button>
+
+              {/* Asset Detail Page */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Price Section */}
+                <div className="lg:col-span-2">
+                  <div className="mb-6 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-200 p-6 shadow-sm">
+                    <div className="mb-4">
+                      <h1 className="text-3xl font-bold text-slate-900">{selectedAsset.symbol}</h1>
+                      <p className="text-lg text-slate-600">{selectedAsset.name}</p>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-sm text-slate-600">Fiyat</p>
+                        <p className="text-5xl font-bold text-slate-900">
+                          {selectedAsset.category === "crypto" 
+                            ? selectedAsset.price.toLocaleString("tr-TR", { minimumFractionDigits: 0 })
+                            : selectedAsset.price.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                          {selectedAsset.category === "crypto" ? " ₺" : 
+                           selectedAsset.category === "currency" ? "" : " ₺"}
+                        </p>
+                      </div>
+                      <div className={`flex items-center gap-2 text-3xl font-bold ${
+                        selectedAsset.change >= 0 ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {selectedAsset.change >= 0 ? (
+                          <ArrowTrendingUpIcon className="h-10 w-10" />
+                        ) : (
+                          <ArrowTrendingDownIcon className="h-10 w-10" />
+                        )}
+                        {selectedAsset.change >= 0 ? "+" : ""}
+                        {selectedAsset.changePercent.toFixed(2)}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chart */}
+                  <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h3 className="mb-4 text-lg font-bold text-slate-900">Günlük Grafik</h3>
+                    <div className="h-64">
+                      <svg viewBox="0 0 400 200" className="h-full w-full">
+                        <defs>
+                          <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style={{stopColor: selectedAsset.change >= 0 ? "#10b981" : "#ef4444", stopOpacity: 0.3}} />
+                            <stop offset="100%" style={{stopColor: selectedAsset.change >= 0 ? "#10b981" : "#ef4444", stopOpacity: 0}} />
+                          </linearGradient>
+                        </defs>
+                        <polyline
+                          fill="url(#gradient)"
+                          stroke={selectedAsset.change >= 0 ? "#10b981" : "#ef4444"}
+                          strokeWidth="3"
+                          points="0,150 50,140 100,120 150,130 200,100 250,110 300,80 350,90 400,70"
+                        />
+                      </svg>
+                    </div>
+                    <div className="mt-6 flex justify-center gap-2">
+                      <button className="rounded-lg bg-slate-100 px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">1G</button>
+                      <button className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white">1H</button>
+                      <button className="rounded-lg bg-slate-100 px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">1A</button>
+                      <button className="rounded-lg bg-slate-100 px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">1Y</button>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <p className="text-sm text-slate-600">Günün En Yüksek</p>
+                      <p className="mt-2 text-2xl font-bold text-green-600">
+                        {(selectedAsset.price * 1.05).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <p className="text-sm text-slate-600">Günün En Düşük</p>
+                      <p className="mt-2 text-2xl font-bold text-red-600">
+                        {(selectedAsset.price * 0.95).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    {selectedAsset.volume && (
+                      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-sm text-slate-600">Hacim</p>
+                        <p className="mt-2 text-2xl font-bold text-slate-900">{selectedAsset.volume}</p>
+                      </div>
+                    )}
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <p className="text-sm text-slate-600">Piyasa Durumu</p>
+                      <p className="mt-2 text-2xl font-bold text-green-600">Açık</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Section */}
+                <div className="lg:col-span-1">
+                  <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h3 className="mb-6 text-lg font-bold text-slate-900">Bilgiler</h3>
+                    
+                    {/* Favorite & Alert */}
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => toggleFavorite(selectedAsset.id)}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-yellow-500 hover:bg-yellow-50"
+                      >
+                        {favorites.includes(selectedAsset.id) ? (
+                          <StarIconSolid className="h-5 w-5 text-yellow-500" />
+                        ) : (
+                          <StarIcon className="h-5 w-5" />
+                        )}
+                        {favorites.includes(selectedAsset.id) ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+                      </button>
+                      <button className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-blue-500 hover:bg-blue-50">
+                        <BellIcon className="h-5 w-5" />
+                        Fiyat Alarmı Kur
+                      </button>
+                    </div>
+
+                    {/* Portfolio Info */}
+                    {portfolio.find(p => p.id === selectedAsset.id) && (
+                      <div className="mt-6 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-lg">
+                        <p className="text-sm font-semibold opacity-90">Portföyünüzde</p>
+                        <p className="mt-2 text-3xl font-bold">
+                          {portfolio.find(p => p.id === selectedAsset.id)?.amount} {selectedAsset.category === "crypto" ? selectedAsset.symbol : "Adet"}
+                        </p>
+                        <p className="mt-1 text-sm opacity-75">
+                          Değer: {((portfolio.find(p => p.id === selectedAsset.id)?.amount || 0) * selectedAsset.price).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Additional Info */}
+                    <div className="mt-6 space-y-4 rounded-lg bg-slate-50 p-4">
+                      <div>
+                        <p className="text-xs text-slate-600">Kategori</p>
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {selectedAsset.category === "stock" && "Hisse Senedi"}
+                          {selectedAsset.category === "crypto" && "Kripto Para"}
+                          {selectedAsset.category === "commodity" && "Emtia"}
+                          {selectedAsset.category === "currency" && "Döviz"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-600">Değişim</p>
+                        <p className={`mt-1 text-lg font-bold ${
+                          selectedAsset.change >= 0 ? "text-green-600" : "text-red-600"
+                        }`}>
+                          {selectedAsset.change >= 0 ? "+" : ""}
+                          {selectedAsset.change.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      {selectedAsset.volume && (
+                        <div>
+                          <p className="text-xs text-slate-600">Günlük Hacim</p>
+                          <p className="mt-1 font-semibold text-slate-900">{selectedAsset.volume}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
+
+      {/* Asset Detail Modal */}
+      {/* Modal removed - now using page view */}
+
+      {/* Portfolio Modal */}
+      {showPortfolio && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <h2 className="text-2xl font-bold text-slate-900">Portföyüm</h2>
+              <button
+                onClick={() => setShowPortfolio(false)}
+                className="rounded-lg p-2 transition hover:bg-slate-100"
+              >
+                <XMarkIcon className="h-6 w-6 text-slate-600" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {/* Portfolio Summary */}
+              <div className="mb-6 grid grid-cols-3 gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-4 text-white">
+                  <p className="text-sm opacity-90">Toplam Değer</p>
+                  <p className="mt-1 text-2xl font-bold">125.450 ₺</p>
+                  <p className="mt-1 text-xs opacity-75">+12.5% Bu Hafta</p>
+                </div>
+                <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-4 text-white">
+                  <p className="text-sm opacity-90">Varlık Sayısı</p>
+                  <p className="mt-1 text-2xl font-bold">{portfolio.length}</p>
+                  <p className="mt-1 text-xs opacity-75">3 Kategori</p>
+                </div>
+                <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 text-white">
+                  <p className="text-sm opacity-90">Günlük Kazanç</p>
+                  <p className="mt-1 text-2xl font-bold">+2.340 ₺</p>
+                  <p className="mt-1 text-xs opacity-75">+1.89%</p>
+                </div>
+              </div>
+
+              {/* Portfolio Items */}
+              <div className="space-y-3">
+                {portfolio.map((item) => {
+                  const asset = [...stocks, ...cryptos, ...commodities, ...currencies].find(a => a.id === item.id);
+                  if (!asset) return null;
+                  const totalValue = asset.price * item.amount;
+                  
+                  return (
+                    <div key={item.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-[#0B1B3D] to-[#2d4a7c] text-sm font-bold text-white">
+                          {asset.symbol.slice(0, 2)}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900">{asset.symbol}</p>
+                          <p className="text-sm text-slate-600">{item.amount} {asset.category === "crypto" ? asset.symbol : "Adet"}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-slate-900">
+                          {totalValue.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                        </p>
+                        <p className={`text-sm font-semibold ${
+                          asset.change >= 0 ? "text-green-600" : "text-red-600"
+                        }`}>
+                          {asset.change >= 0 ? "+" : ""}{asset.changePercent.toFixed(2)}%
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedAsset(asset);
+                          setViewMode("detail");
+                          setShowPortfolio(false);
+                        }}
+                        className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                      >
+                        Detay
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

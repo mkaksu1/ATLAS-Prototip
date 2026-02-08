@@ -50,7 +50,7 @@ export default function HomePage() {
   const [openProfile, setOpenProfile] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
-  const [designVersion, setDesignVersion] = useState<1 | 2>(1);
+  const [designVersion, setDesignVersion] = useState<1 | 2>(2);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
